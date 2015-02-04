@@ -1,9 +1,10 @@
 <?php
 include 'db.php';
   $result = pg_query($db, "SELECT * FROM relations WHERE tags->'operator' = 'cz:KČT' LIMIT 1");
+  $relations = array();
   while($row=pg_fetch_array($result)){
     $relid = $row['id'];
-    $pom = pg_query($db, "SELECT * FROM relation_members WHERE relation_id = '$relid' LIMIT 5");
+    $pom = pg_query($db, "SELECT * FROM relation_members WHERE relation_id = '$relid'");
     $ways = array();
     while($member = pg_fetch_array($pom)){
       if($member['member_type']=='W'){
@@ -18,8 +19,11 @@ include 'db.php';
           $x[] = $location['st_x'];
           $y[] = $location['st_y'];
         }
+        $ways[] = $x;
+        $ways[] = $y; 
       }
     }   
+    $relations[] = $ways; 
   }
 ?>
 
@@ -42,8 +46,7 @@ include 'db.php';
 <script type="text/javascript" src="leaflet.js"></script>
 <script type="text/javascript">
 <?php
-  echo "var x = ". json_encode($x) . ";\n";
-  echo "var y = ". json_encode($y) . ";\n";
+  echo "var relations = ". json_encode($relations) . ";\n";
 ?>
   </script>
 <script type="text/javascript">
@@ -120,16 +123,24 @@ include 'db.php';
       }
     });
     map.addControl(drawControl);
-    var latLon = [];
+    
+    
+    var x, y;
+  for (var j = 0; j < relations[0].length; j = j + 2){
     var str = "";
-     for (var i = 0; i < x.length; i++){
+    var latLon = [];
+    x = relations[0][j];
+    y = relations[0][j+1];
+    for (var i = 0; i < x.length; i++){
       latLon[i] = L.latLng(y[i],x[i]);
     //L.marker( [y[i], x[i]]).addTo(map);
     //console.log(y[i]);
-    str += latLon[i];
-  }
-  L.polyline(latLon).bindPopup(str+"<input type=text/>").addTo(map);
+      str += latLon[i];
+    }
+    L.polyline(latLon).bindPopup(str+"<input type=text/>").addTo(map);
   console.log(x.length);
+  }
+  
     map.on('draw:created', function (e) {
       var type = e.layerType,
         layer = e.layer;
