@@ -10,6 +10,7 @@ CREATE TABLE parts (
   tstamp TIMESTAMP default CURRENT_TIMESTAMP,
   hi_user_id text NOT NULL,
   note text,
+  type int,
   date varchar(10)
 );
 

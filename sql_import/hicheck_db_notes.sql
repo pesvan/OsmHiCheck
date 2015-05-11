@@ -12,6 +12,7 @@ CREATE TABLE notes (
   password text,
   note text,
   image text,
+  type int,
   date varchar(10)
 );
 

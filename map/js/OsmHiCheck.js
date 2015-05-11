@@ -39,6 +39,7 @@ var cycleRelationsAreOn = false;
 
 //pomocna promenna pro zamezeni opakovemu nahravani ve stejny moment
 var canGetData = true;
+var canGetData2 = true;
 
 var selectedElement;
 
@@ -88,6 +89,7 @@ var temporaryMarker = null;
 var selectedWayToControl;
 
 var sidebarContent = null;
+var tempIcon;
 
 function initMap() {
 
@@ -119,11 +121,12 @@ function initMap() {
     /** ikony */
     layers[TRACKS].icon = L.AwesomeMarkers.icon({
         markerColor: 'green',
-        icon: 'android-walk'
+        icon: 'navigate'
     });
     layers[WARNINGS].icon = L.AwesomeMarkers.icon({
         markerColor: 'orange',
-        icon: 'ion-android-walk'
+        icon: 'navigate',
+        iconColor: 'black'
     });
     layers[ERRORS].icon = L.AwesomeMarkers.icon({
         markerColor: 'red',
@@ -134,8 +137,18 @@ function initMap() {
         icon: 'location'
     });
     layers[USERNOTES].icon = L.AwesomeMarkers.icon({
+        markerColor: 'darkpurple',
+        icon: 'compose'
+    });
+    layers[USERPARTS].icon = L.AwesomeMarkers.icon({
         markerColor: 'yellow',
-        icon: 'location'
+        icon: 'navigate',
+        iconColor: 'black'
+    });
+    tempIcon = L.AwesomeMarkers.icon({
+        markerColor: 'white',
+        icon: 'compose',
+        iconColor: 'black'
     });
 
 
@@ -267,37 +280,22 @@ function initMap() {
         id: GUIDE
     });
 
-
-
-
-
-    //ikona pro uzivatelske poznamky
-    var redIcon = L.icon({
-        iconUrl: 'js/leaflet/images/marker_red.png',
-        iconSize: [20, 37],
-        iconAnchor: [10, 37],
-        shadowUrl: 'js/leaflet/images/marker-shadow.png',
-        shadowSize: [35, 50],
-        shadowAnchor: [9, 53]
-    });
-
     /** uzivatelske poznamky **/
     layers[USERNOTES].layer = L.geoJson(null, {
         id: USERNOTES,
         pointToLayer: function (feature, latlng) {
             return L.marker(latlng, {
-                icon: redIcon
+                icon: layers[USERNOTES].icon
             }).bindPopup(
                 "<h3>Poznámka</h3>" +
+                "typ: "+ resolveSelectType(feature.properties.type) + " <br />"+
                 "poznámka: " + feature.properties.note + "<br/>" +
                 "aktuálnost poznámky:" + feature.properties.date + "<br/>" +
                 "čas vložení: " + feature.properties.timestamp + "<br/>" +
                 "uživatel: " + feature.properties.user + "<br/>" +
-                "<a onclick='deleteUserContent(CR_NODE1,"+ feature.properties.id+")'>Odstranit poznamku</a><br/>",
+                "<a onclick='deleteUserContent(CR_NODE1,"+ feature.properties.id+")'>Odstranit poznamku</a><br/>"
 
-                {
-                    offset: L.point(0, -37)
-                }
+
             );
         }
     });
@@ -358,7 +356,8 @@ function createNode(e, bind) {
         dataFromClick = bind;
         changeSidebarContent(CR_NODE2);
         temporaryMarker = L.marker(lngLatFromClick, {
-            clickable: false
+            clickable: false,
+            icon: tempIcon
         });
         temporaryMarker.addTo(map);
     }
@@ -375,6 +374,7 @@ function onEachFeature(feature, layer) {
 function onEachFeatureUserPart(feature, layer){
     layer.bindPopup(
         "<h3>Poznámka</h3>" +
+        "typ: "+ resolveSelectType(feature.properties.type) + " <br />"+
         "poznámka: " + feature.properties.note + "<br/>" +
         "aktuálnost poznámky:" + feature.properties.date + "<br/>" +
         "čas: " + feature.properties.timestamp + "<br/>" +
@@ -450,6 +450,7 @@ function mapMoved() {
  * @param type
  */
 function getSpecifics(type) {
+
     var url = 'data=' + selected[type].id + '&type=' + type;
     $.ajax({
         url: 'php/getElement.php',
@@ -460,6 +461,7 @@ function getSpecifics(type) {
         },
         complete: function () {
             changeSidebarContent(DATA);
+
         }
     });
 }
@@ -717,21 +719,24 @@ function getWaysToDraw(rid, controlType) {
         success: function (data) {
             layers[controlType].layer.addData(data);
             layers[controlType].drawn[layers[controlType].drawn.length] = rid;
-/*
-            layers[ERRORS].layer.bringToFront();
-            layers[TRACKS].layer.bringToBack();*/
-
         }
     })
 }
 
 function getGuideInfo(nid) {
+    if (!canGetData2) {
+        return;
+    }
+    canGetData2 = false;
     $.ajax({
         url: 'php/getGuideInfo.php',
         dataType: 'json',
         data: 'nid=' + nid,
         success: function(data){
             printGuideInfo(data);
+            setTimeout(function () {
+                canGetData2 = true;
+            }, 500);
         }
     });
 }
@@ -1231,7 +1236,8 @@ function saveNote() {
             lat: getFormValue('lat', 'addNote'),
             name: getFormValue('name', 'addNote'),
             note: getFormValue('note', 'addNote'),
-            date: getFormValue('date', 'addNote')
+            date: getFormValue('date', 'addNote'),
+            type: getSelectedValue()
         }, function (data) {
             if (map.hasLayer(temporaryMarker)) {
                 console.log(data);
@@ -1254,6 +1260,7 @@ function savePart() {
             name: getFormValue('name', 'addPart'),
             note: getFormValue('note', 'addPart'),
             date: getFormValue('date', 'addPart'),
+            type: getSelectedValue(),
             obj: JSON.stringify(selectedWayToControl.getSelection())
         }, function () {
             selectedWayToControl.disable();
@@ -1283,6 +1290,10 @@ function saveGuideInfo() {
 
 function validateFormPart() {
     var element = document.forms["addPart"];
+    if (!(validateSelect())){
+        setError(msgErrorSelect);
+        return false;
+    }
     if ((isEmpty(element["name"])) || (isEmpty(element["note"])) || (isEmpty(element['date']))) {
         setError(msgError);
         return false;
@@ -1332,6 +1343,10 @@ function validateFormNote() {
             setError(msgErrorCoords);
             return false;
         }
+    }
+    if (!(validateSelect())){
+        setError(msgErrorSelect);
+        return false;
     }
     if ((isEmpty(element["name"])) || (isEmpty(element["note"])) || (isEmpty(element["date"]))){
         setError(msgError);

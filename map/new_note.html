@@ -12,10 +12,18 @@
     <div id="notice" class="notice-yellow"></div>
     <label>Zadejte jméno pro identifikaci:</label>
     <input type="text" name="name" placeholder="Jméno" maxlength="50"/>
+    <label>Vyberte nejlepe se hodici k situaci na miste nebo na mape:</label>
+    <select id="select">
+        <option value="0" selected>(Vyberte z nabidky)</option>
+        <option value="1">Vse v poradku</option>
+        <option value="2">Je zde jeden nebo vice problemu (viz. komentar)</option>
+        <option value="3">Chci jen vlozit komentar/fotku</option>
+    </select>
     <textarea name="note" placeholder="Zde vložte svou poznámku" maxlength="1000"></textarea>
     <label>Informace platná k (den/měsíc/rok):</label>
     <input type="date" name="date" maxlength="10"/>
     <label>Můžete vložit relevantní fotografie (png/jpeg). Maximalni velikost obrazku je 5MB. Obrazky presahujici jednim rozmerem 1200px budou prislusne zmenseny</label>
+    <div class="red center">Upload obrazku momentalne nefunkcni (chybi GD knihovna (abych nezapomel))</div>
 
     <input type="file" id="file-select" name="photos[]" multiple/>
     <br />
