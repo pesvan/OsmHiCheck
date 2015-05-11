@@ -1,0 +1,50 @@
+/*function getData(){ //zalezi na poradi volani
+         if(tracksLayerIsOn){
+         if(warningLayerIsOn){ //nejprve se vykresli podkresleni u varovani a chyb, pote az trasy
+         var data = 'bbox=' + map.getBounds().toBBoxString() + '&type=' + GET_WAYS_WARNINGS;
+         $.ajax({
+         url: 'php/get_data_old.php',
+         dataType: 'json',
+         data: data,
+         success: function(data){
+         warning.clearLayers();
+         warning.addData(data);
+         }
+         });
+         }
+         if(errorLayerIsOn){
+         var data = 'bbox=' + map.getBounds().toBBoxString() + '&type=' + GET_WAYS_ERRORS;
+         $.ajax({
+         url: 'php/get_data_old.php',
+         dataType: 'json',
+         data: data,
+         success: function(data){
+         error.clearLayers();
+         error.addData(data);
+         }
+         });
+         }
+         var data = 'bbox=' + map.getBounds().toBBoxString() + '&type=' + GET_WAYS;
+         $.ajax({
+         url: 'php/get_data_old.php',
+         dataType: 'json',
+         data: data,
+         success: function(data){
+         tracks.clearLayers();
+         tracks.addData(data);
+         }
+         });
+         }
+         if(guideLayerIsOn){
+         var data = 'bbox=' + map.getBounds().toBBoxString() + '&type=' + GET_GUIDEPOSTS;
+         $.ajax({
+         url: 'php/get_data_old.php',
+         dataType: 'json',
+         data: data,
+         success: function(data){
+         guideposts.clearLayers();
+         guideposts.addData(data);
+         }
+         });
+         }
+         }*/

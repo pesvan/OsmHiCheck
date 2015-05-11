@@ -1,0 +1,16 @@
+body {
+  background-color: #fff;
+  font-family: "PT Sans", helvetica, arial, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  text-rendering: optimizeLegibility;
+}
+
+.content {    
+    width: 800px;  
+    margin: auto;
+}
+
+a:visited {
+    color: inherit;
+}

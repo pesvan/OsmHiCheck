@@ -1,0 +1,47 @@
+body {
+  background-color: #fff;
+  font-family: "PT Sans", helvetica, arial, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  text-rendering: optimizeLegibility;
+}
+
+.content {    
+    width: 800px;  
+    margin: auto;
+}
+
+.content-inside {
+    text-align: center;
+}
+
+.image{
+    display: block;
+    float:left;
+    width: 380px;
+    height: 216px;
+    border-radius: 4px;
+    border: 1px solid #000;
+    margin-left: 5px;
+}
+
+.image > div {
+    display: table-cell;
+    vertical-align: middle;
+    font-size: 50px;
+    height: 216px;
+    width: 380px;
+}
+
+.image:hover {
+    border-color: #f00;
+    color: #f00;
+}
+
+a:visited {
+    color: inherit;
+}
+
+.image-left {
+    background-image: url('http://osm.fit.vutbr.cz/xsvana00/screen.png');
+}

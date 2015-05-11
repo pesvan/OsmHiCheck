@@ -1,0 +1,161 @@
+.leaflet-control-layers {
+	box-shadow: 0 0px 0px rgba(0,0,0,0.4);
+	background: #fff;
+	border-radius: 0px;
+    margin-left: -5px;
+    padding: 0;
+}
+
+.leaflet-control-layers-separator {
+    height: 0;
+    border-top: 1px solid #000;
+    margin: 0;
+    width: 50%;
+}
+.leaflet-control-layers-expanded {
+    padding: 0;
+    color: #333;
+    background: #fff;
+}
+
+#side-menu {
+	text-align: center;
+}
+
+#mymap { 
+    position: absolute;
+    top:0;
+    left: 0;
+    right: 0;
+    bottom:0;
+}
+
+
+
+body {
+  background-color: #fff;
+  font-family: "PT Sans", helvetica, arial, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  text-rendering: optimizeLegibility;
+}
+
+
+table {
+    min-width: 100%;
+}
+
+tr {
+    border-top: 1px solid #C1C3D1;
+    border-bottom-: 1px solid #C1C3D1;
+    color:#666B85;
+    font-size:12px;
+    font-weight:normal;
+    text-shadow: 0 1px 1px rgba(256, 256, 256, 0.1);
+}
+
+tr:nth-child(odd) td {
+    background:#EBEBEB;
+}
+
+tr.warning  td {
+    background: orange;
+}
+
+td {
+    background:#FFFFFF;
+    padding:5px;
+    text-align:left;
+    vertical-align:middle;
+    font-size:12px;
+    text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
+    border-right: 1px solid #C1C3D1;
+}
+
+td:last-child {
+    border-right: 0px;
+}
+
+
+.red {
+    background-color: rgba(255, 38, 45, 0.71);
+}
+
+.orange {
+    background-color: rgba(255, 182, 69, 0.71)!important;
+}
+
+.notice-yellow{
+    background-color: rgba(240, 255, 0, 0.31);
+}
+
+.circle {
+    border-radius: 50%;
+    width: 15px;
+    height: 15px;
+}
+
+.green {
+    background-color: rgba(0, 255, 0, 0.71);
+}
+
+.center {
+    text-align: center;
+}
+
+#load-circle{
+    float:left;
+}
+
+#side-loading{
+    margin-left: 30px;
+}
+
+#add-note input, textarea, label{
+    width: 100%;
+}
+
+#side-layer2{
+    display: none;
+}
+
+
+.content {    
+    width: 800px;  
+    margin: auto;
+}
+
+.content-inside {
+    text-align: center;
+}
+
+.image{
+    display: block;
+    float:left;
+    width: 380px;
+    height: 216px;
+    border-radius: 4px;
+    border: 1px solid #000;
+    margin-left: 5px;
+}
+
+.image > div {
+    display: table-cell;
+    vertical-align: middle;
+    font-size: 50px;
+    height: 216px;
+    width: 380px;
+}
+
+.image:hover {
+    border-color: #f00;
+    color: #f00;
+}
+
+a:visited {
+    color: inherit;
+}
+
+.image-left {
+    background-image: url('http://osm.fit.vutbr.cz/xsvana00/screen.png');
+}

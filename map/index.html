@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>OsmHiCheck - Mapa</title>
+    <meta charset="utf-8"/>
+
+    <link rel="stylesheet" type="text/css" href="css/leaflet/leaflet.css"/>
+    <link rel="stylesheet" type="text/css" href="css/leaflet/Control.OSMGeocoder.css"/>
+    <link rel="stylesheet" type="text/css" href="css/leaflet/L.Control.Sidebar.css"/>
+    <link rel="stylesheet" type="text/css" href="css/leaflet/L.Control.Zoomslider.css"/>
+    <link rel="stylesheet" type="text/css" href="css/stylesheet.css"/>
+
+    <script type="text/javascript" src="js/leaflet/leaflet.js"></script>
+    <script type="text/javascript" src="js/leaflet/leaflet-hash.js">//priblizeni a souradnice v adrese</script>
+    <script type="text/javascript" src="js/leaflet/Control.OSMGeocoder.js">//vyhledavani</script>
+    <script type="text/javascript" src="js/leaflet/L.Control.Zoomslider.js"></script>
+    <script type="text/javascript" src="js/leaflet/L.Control.Sidebar.js">//sidebar</script>
+    <script type="text/javascript" src="js/jquery/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" src="js/map.js">
+
+    </script>
+
+</head>
+
+<body onload="initmap()">
+
+<div id="mymap"></div>
+<div id="sidebar">
+    <div id="load-circle" class="circle green"></div>
+    <div id="side-loading"><br/></div>
+    <div id="side-menu">
+        <a href="#" onclick="changeSidebarContent(LAYERS)">Vrstvy</a> -
+        <a href="#" onclick="changeSidebarContent(DATA)">Data & Tagy</a><br/>
+        <a href='#' onclick="changeSidebarContent(CR_NODE1)">Vytvořit poznámku</a> -
+        <a href="#" onclick="changeSidebarContent(NODE_LIST)">Seznam poznámek</a>
+    </div>
+    <br/>
+
+    <div id="side-content"></div>
+    <div id="side-load"></div>
+    <div id="side-layer"></div>
+    <div id="side-layer2">
+       <label><input type="checkbox" id="cycle" onclick="processCheckbox()"/>Zahrnout cyklotrasy</label>
+    </div>
+
+</div>
+
+</body>
+
+</html>
