@@ -13,6 +13,7 @@ CREATE TABLE notes (
   note text,
   image text,
   type int,
+  osm_name int,
   date varchar(10)
 );
 

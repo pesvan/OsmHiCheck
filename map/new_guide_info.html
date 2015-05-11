@@ -12,6 +12,7 @@
     <input type="text" name="node" maxlength="50" readonly id="node_id" value=""/>
     <label>Zadejte jméno pro identifikaci:</label>
     <input type="text" name="name" placeholder="Jméno" maxlength="50"/>
+    <label><input type="checkbox" id="osm_name"/>Používám toto jméno i na OpenStreetMap.org</label><br />
     <label>Vyberte nejlepe se hodici k situaci na miste nebo na mape:</label>
     <select id="select">
         <option value="0" selected>(Vyberte z nabidky)</option>
@@ -22,7 +23,7 @@
     <textarea name="note" placeholder="Zde popiste prosim situaci blize" maxlength="1000"></textarea>
 
     <label>Informace platná k (den/měsíc/rok):</label>
-    <input type="date" name="date" maxlength="10"/>
+    <input type="text" name="date" maxlength="10"/>
 
     <label>Můžete vložit relevantní fotografie (png/jpeg). Maximalni velikost obrazku je 5MB. Obrazky presahujici jednim rozmerem 1200px budou prislusne zmenseny</label>
     <div class="red center">Upload obrazku momentalne nefunkcni (chybi GD knihovna (abych nezapomel))</div>

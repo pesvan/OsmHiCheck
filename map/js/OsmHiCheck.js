@@ -284,18 +284,20 @@ function initMap() {
     layers[USERNOTES].layer = L.geoJson(null, {
         id: USERNOTES,
         pointToLayer: function (feature, latlng) {
+            var osmLink = "";
+            if(feature.properties.osm==1){
+                osmLink += "<a target='_blank' href='http://www.openstreetmap.org/user/"+feature.properties.user+"'>(OSM uživatel)</a>";
+            }
             return L.marker(latlng, {
                 icon: layers[USERNOTES].icon
             }).bindPopup(
                 "<h3>Poznámka</h3>" +
-                "typ: "+ resolveSelectType(feature.properties.type) + " <br />"+
+                "typ: "+ resolveSelectType(feature.properties.type) +  " <br />"+
                 "poznámka: " + feature.properties.note + "<br/>" +
                 "aktuálnost poznámky:" + feature.properties.date + "<br/>" +
                 "čas vložení: " + feature.properties.timestamp + "<br/>" +
-                "uživatel: " + feature.properties.user + "<br/>" +
+                "uživatel: " + feature.properties.user + " " + osmLink +"<br/>" +
                 "<a onclick='deleteUserContent(CR_NODE1,"+ feature.properties.id+")'>Odstranit poznamku</a><br/>"
-
-
             );
         }
     });
@@ -372,13 +374,18 @@ function onEachFeature(feature, layer) {
 }
 
 function onEachFeatureUserPart(feature, layer){
+    var osmLink = "";
+    if(feature.properties.osm==1){
+        osmLink += "<a target='_blank' href='http://www.openstreetmap.org/user/"+feature.properties.user+"'>(OSM uživatel)</a>";
+    }
     layer.bindPopup(
         "<h3>Poznámka</h3>" +
         "typ: "+ resolveSelectType(feature.properties.type) + " <br />"+
         "poznámka: " + feature.properties.note + "<br/>" +
         "aktuálnost poznámky:" + feature.properties.date + "<br/>" +
         "čas: " + feature.properties.timestamp + "<br/>" +
-        "uživatel: " + feature.properties.user + "<br/>" +
+        "uživatel: " + feature.properties.user + " " + osmLink +"<br/>" +
+
         "<a onclick='deleteUserContent(CR_PART1,"+ feature.properties.id+")'>Odstranit poznamku</a><br/>"
 
     );
@@ -634,9 +641,7 @@ function filterNewRelations(data) {
 
 function filterNewWays(data) {
     var toDraw = [];
-    console.log(layers[ALLWAYS].list);
     toDraw[ALLWAYS] = $(data).not(layers[ALLWAYS].list).get();
-    console.log(toDraw[ALLWAYS]);
     layers[ALLWAYS].list = data;
     return toDraw;
 }
@@ -746,7 +751,12 @@ function printGuideInfo(data){
         var load = document.getElementById('side-load');
         for(var info in data){
             if(data.hasOwnProperty(info)){
-                load.innerHTML += "Uzivatel: "+data[info].hi_user_id + ", Typ: "+resolveSelectType(data[info].type)+"</span><br />";
+                var osmLink = "";
+                if(data[info].osm_name==1){
+                    osmLink += "<a target='_blank' href='http://www.openstreetmap.org/user/"+data[info].hi_user_id+"'>(OSM uživatel)</a>";
+                }
+                load.innerHTML += "Uzivatel: "+data[info].hi_user_id + " " + osmLink + "<br />";
+                load.innerHTML += "Typ: "+resolveSelectType(data[info].type)+"</span><br />";
                 load.innerHTML += "Komentar: "+data[info].note+"<br />";
                 load.innerHTML += "Platne k datu: "+data[info].date+"<br />";
                 load.innerHTML += "<a onclick='deleteUserContent(GUIDEPOST_INFO,"+data[info].id+")'>(Odstranit)</a>";
@@ -1237,6 +1247,7 @@ function saveNote() {
             name: getFormValue('name', 'addNote'),
             note: getFormValue('note', 'addNote'),
             date: getFormValue('date', 'addNote'),
+            osm: getOsmNameValue(),
             type: getSelectedValue()
         }, function (data) {
             if (map.hasLayer(temporaryMarker)) {
@@ -1255,14 +1266,15 @@ function saveNote() {
 function savePart() {
     if (validateFormPart()) {
         setError("");
-        console.log(JSON.stringify(selectedWayToControl.toGeoJSON()));
         $.post('php/savePart.php', {
             name: getFormValue('name', 'addPart'),
             note: getFormValue('note', 'addPart'),
             date: getFormValue('date', 'addPart'),
             type: getSelectedValue(),
+            osm: getOsmNameValue(),
             obj: JSON.stringify(selectedWayToControl.getSelection())
-        }, function () {
+        }, function (data) {
+            console.log(data);
             selectedWayToControl.disable();
             map.user = getFormValue('name', 'addPart');
             getData();
@@ -1279,8 +1291,9 @@ function saveGuideInfo() {
             note: getFormValue('note', 'addGuideInfo'),
             date: getFormValue('date', 'addGuideInfo'),
             node: getFormValue('node', 'addGuideInfo'),
-            type: getSelectedValue()
-        }, function (data) {
+            type: getSelectedValue(),
+            osm: getOsmNameValue()
+    }, function (data) {
             console.log(data);
             map.user = getFormValue('name', 'addGuideInfo');
             changeSidebarContent(DATA);
@@ -1365,6 +1378,10 @@ function validateFormNote() {
 function getSelectedValue(){
     var e = document.getElementById('select');
     return e.options[e.selectedIndex].value;
+}
+
+function getOsmNameValue(){
+    return document.getElementById('osm_name').checked ? 1 : 0;
 }
 
 function validateSelect(){

@@ -11,6 +11,7 @@ CREATE TABLE parts (
   hi_user_id text NOT NULL,
   note text,
   type int,
+  osm_name int,
   date varchar(10)
 );
 

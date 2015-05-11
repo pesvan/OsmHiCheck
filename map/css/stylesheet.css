@@ -135,6 +135,11 @@ td:last-child {
     float:left;
 }
 
+#add-note input#osm_name {
+    width: 10%;
+    float:left;
+}
+
 #side-layer2{
     display: none;
 }

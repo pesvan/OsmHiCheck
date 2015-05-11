@@ -7,6 +7,7 @@ $name = pg_escape_string($_POST['name']);
 $note = pg_escape_string($_POST['note']);
 $date = pg_escape_string($_POST['date']);
 $type = pg_escape_string($_POST['type']);
+$osm = pg_escape_string($_POST['osm']);
 
 //zpracovani objektu souradnic jako priprava na vytvoreni linestringu
 $coords = explode('{', $obj);
@@ -38,8 +39,8 @@ foreach ($parts as $key=>$part) {
 }
 $linestring .= ")";
 
-$sql = "INSERT INTO hicheck.parts (hi_user_id, note, geom, date, type)
-     VALUES ('$name', '$note', ST_GeomFromText('$linestring', 4326), '$date', '$type')";
+$sql = "INSERT INTO hicheck.parts (hi_user_id, note, geom, date, type, osm_name)
+     VALUES ('$name', '$note', ST_GeomFromText('$linestring', 4326), '$date', '$type', '$osm')";
 
 pg_query($db, $sql);
 

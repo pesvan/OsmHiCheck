@@ -13,6 +13,7 @@ CREATE TABLE checked_guideposts (
   note text,
   node varchar(50),
   image text,
+  osm_name int,
   date varchar(10)
 );
 

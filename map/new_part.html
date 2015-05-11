@@ -12,6 +12,7 @@
     <div id="notice" class="notice-yellow"></div>
     <label>Zadejte jméno pro identifikaci:</label>
     <input id="name" type="text" name="name" placeholder="Jméno" maxlength="50"/>
+    <label><input type="checkbox" id="osm_name"/>Používám toto jméno i na OpenStreetMap.org</label><br />
     <label>Vyberte nejlepe se hodici k situaci na miste nebo na mape:</label>
     <select id="select">
         <option value="0" selected>(Vyberte z nabidky)</option>
@@ -21,7 +22,7 @@
     </select>
     <textarea name="note" placeholder="Zde vložte svou poznámku" maxlength="1000"></textarea>
     <label>Informace platná k (den/měsíc/rok):</label>
-    <input type="date" name="date" maxlength="10"/>
+    <input type="text" name="date" maxlength="10"/>
     <br/>
     <br/>
     <input type="button" class="button" value="Vložit" onclick="savePart()"/>
