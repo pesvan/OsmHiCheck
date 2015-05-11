@@ -89,8 +89,6 @@ var selectedWayToControl;
 
 var sidebarContent = null;
 
-var guideInfo = [];
-
 function initMap() {
 
     document.getElementById('cycle').checked = false;
@@ -121,11 +119,11 @@ function initMap() {
     /** ikony */
     layers[TRACKS].icon = L.AwesomeMarkers.icon({
         markerColor: 'green',
-        icon: 'alert'
+        icon: 'android-walk'
     });
     layers[WARNINGS].icon = L.AwesomeMarkers.icon({
         markerColor: 'orange',
-        icon: 'walk'
+        icon: 'ion-android-walk'
     });
     layers[ERRORS].icon = L.AwesomeMarkers.icon({
         markerColor: 'red',
@@ -133,6 +131,10 @@ function initMap() {
     });
     layers[GUIDE].icon = L.AwesomeMarkers.icon({
         markerColor: 'blue',
+        icon: 'location'
+    });
+    layers[USERNOTES].icon = L.AwesomeMarkers.icon({
+        markerColor: 'yellow',
         icon: 'location'
     });
 
@@ -290,7 +292,9 @@ function initMap() {
                 "poznámka: " + feature.properties.note + "<br/>" +
                 "aktuálnost poznámky:" + feature.properties.date + "<br/>" +
                 "čas vložení: " + feature.properties.timestamp + "<br/>" +
-                "uživatel: " + feature.properties.user + "<br/>",
+                "uživatel: " + feature.properties.user + "<br/>" +
+                "<a onclick='deleteUserContent(CR_NODE1,"+ feature.properties.id+")'>Odstranit poznamku</a><br/>",
+
                 {
                     offset: L.point(0, -37)
                 }
@@ -374,7 +378,9 @@ function onEachFeatureUserPart(feature, layer){
         "poznámka: " + feature.properties.note + "<br/>" +
         "aktuálnost poznámky:" + feature.properties.date + "<br/>" +
         "čas: " + feature.properties.timestamp + "<br/>" +
-        "uživatel: " + feature.properties.user + "<br/>"
+        "uživatel: " + feature.properties.user + "<br/>" +
+        "<a onclick='deleteUserContent(CR_PART1,"+ feature.properties.id+")'>Odstranit poznamku</a><br/>"
+
     );
 }
 
@@ -486,6 +492,7 @@ function getData() {
             dataType: 'json',
             data: 'bbox=' + map.getBounds().toBBoxString() + '&type=1&bicycle=false',
             success: function (data) {
+
                 processListDataUser(data, USERNOTES);
             } //success
         });//ajax
@@ -499,6 +506,7 @@ function getData() {
             dataType: 'json',
             data: 'bbox=' + map.getBounds().toBBoxString() + '&type=3&bicycle=false',
             success: function (data) {
+
                 processListDataUser(data, USERPARTS);
             } //success
         });//ajax
@@ -564,7 +572,7 @@ function processListDataAllWays(data){
 function processListDataUser(data, type) {
     if(type==USERNOTES){
         for (var element in data) {
-            if (data.hasOwnProperty(element) && [USERNOTES].isOn && layers[USERNOTES].list.indexOf(data[element]) == -1) {
+            if (data.hasOwnProperty(element)  && layers[USERNOTES].isOn && layers[USERNOTES].list.indexOf(data[element]) == -1) {
                 layers[USERNOTES].list[layers[USERNOTES].list.length] = data[element];
                 getNotesToDraw(data[element], 1);
             }
@@ -718,7 +726,6 @@ function getWaysToDraw(rid, controlType) {
 }
 
 function getGuideInfo(nid) {
-    var ret = null;
     $.ajax({
         url: 'php/getGuideInfo.php',
         dataType: 'json',
@@ -734,14 +741,42 @@ function printGuideInfo(data){
         var load = document.getElementById('side-load');
         for(var info in data){
             if(data.hasOwnProperty(info)){
-                console.log(data[info]);
                 load.innerHTML += "Uzivatel: "+data[info].hi_user_id + ", Typ: "+resolveSelectType(data[info].type)+"</span><br />";
                 load.innerHTML += "Komentar: "+data[info].note+"<br />";
                 load.innerHTML += "Platne k datu: "+data[info].date+"<br />";
+                load.innerHTML += "<a onclick='deleteUserContent(GUIDEPOST_INFO,"+data[info].id+")'>(Odstranit)</a>";
                 load.innerHTML += "<br />";
             }
         }
     }
+}
+
+function deleteUserContent(type, id){
+    var r = confirm("Opravdu chcete tento uzivatelsky prispevek smazat?");
+    if(r){
+        $.ajax({
+            url: 'php/deleteUserContent.php',
+            dataType: 'json',
+            data: 'uid='+ id + '&type='+type,
+            complete: function(){
+                if(type==GUIDEPOST_INFO){
+                    changeSidebarContent(DATA);
+                } else if(type==CR_NODE1){
+                    resetLayer(USERNOTES);
+                    getData();
+                } else if(type==CR_PART1){
+                    resetLayer(USERPARTS);
+                    getData();
+                }
+
+            }
+        })
+    }
+}
+
+function resetLayer(layer){
+    layers[layer].layer.clearLayers();
+    layers[layer].list = [];
 }
 
 function resolveSelectType(type){

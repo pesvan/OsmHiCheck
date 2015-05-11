@@ -16,7 +16,7 @@ if(isset($_GET['nid'])){
 
 $arrayOfValues = array();
 
-$query_string = "SELECT tstamp, hi_user_id, type, note, image, date FROM hicheck.checked_guideposts WHERE node='$node_id'";
+$query_string = "SELECT id, tstamp, hi_user_id, type, note, image, date FROM hicheck.checked_guideposts WHERE node='$node_id'";
 
 $query = pg_query($query_string);
 
