@@ -7,7 +7,6 @@
 
 	L.Hash = function(map) {
 		this.onHashChange = L.Util.bind(this.onHashChange, this);
-
 		if (map) {
 			this.init(map);
 		}
@@ -18,16 +17,19 @@
 			hash = hash.substr(1);
 		}
 		var args = hash.split("/");
-		if (args.length == 3) {
-			var zoom = parseInt(args[0], 10),
-			lat = parseFloat(args[1]),
-			lon = parseFloat(args[2]);
+		if (args.length == 4) {
+			var tryUser = args[0],
+                zoom = parseInt(args[1], 10),
+			lat = parseFloat(args[2]),
+			lon = parseFloat(args[3])
 			if (isNaN(zoom) || isNaN(lat) || isNaN(lon)) {
 				return false;
 			} else {
+                this.user = tryUser;
 				return {
 					center: new L.LatLng(lat, lon),
-					zoom: zoom
+					zoom: zoom,
+                    user: tryUser
 				};
 			}
 		} else {
@@ -38,9 +40,10 @@
 	L.Hash.formatHash = function(map) {
 		var center = map.getCenter(),
 		    zoom = map.getZoom(),
-		    precision = Math.max(0, Math.ceil(Math.log(zoom) / Math.LN2));
+		    precision = Math.max(0, Math.ceil(Math.log(zoom) / Math.LN2)),
+            user = this.map.user;
 
-		return "#" + [zoom,
+		return "#" + [user,zoom,
 			center.lat.toFixed(precision),
 			center.lng.toFixed(precision)
 		].join("/");
@@ -103,7 +106,7 @@
 				this.movingMap = true;
 
 				this.map.setView(parsed.center, parsed.zoom);
-
+                this.map.user = parsed.user;
 				this.movingMap = false;
 			} else {
 				this.onMapMove(this.map);

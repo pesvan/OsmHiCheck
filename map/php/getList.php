@@ -35,8 +35,12 @@ and relations.tags->'route'!='bicycle'";
 inner join ways on relation_members.member_id = ways.id
  where bbox && ST_MakeEnvelope($left, $bottom, $right, $top)";
     }
-} else if($type==USER) {
+} else if($type==USER_NOTES) {
     $query_string = "SELECT id FROM hicheck.notes where geom && ST_MakeEnvelope($left, $bottom, $right, $top)";
+} else if($type==ALL_WAYS){
+    $query_string = "SELECT id from ways where bbox && ST_MakeEnvelope($left, $bottom, $right, $top)";
+} else if($type==USER_PARTS){
+    $query_string = "SELECT id FROM hicheck.parts where geom && ST_MakeEnvelope($left, $bottom, $right, $top)";
 }
 
 $data = pg_query($db, $query_string);

@@ -47,7 +47,7 @@ elif [ "$ret" != "0" ]; then
 else
 	echo Updated dump downloaded. [$ret] >> $LOGFILE
 fi
-$OSMFILTER $NEXT_DUMP --keep="operator=cz:KČT" --out-o5m > $NEXT_FILTERED_DUMP
+$OSMFILTER $NEXT_DUMP --keep-ways="highway=" --keep="operator=cz:KČT" --out-o5m > $NEXT_FILTERED_DUMP
 ret=$?
 echo `date` >> $LOGFILE
 if [ "$ret" != "0" ]; then 
@@ -56,7 +56,7 @@ if [ "$ret" != "0" ]; then
 else
 	echo Updated dump succesfully filtered. [$ret] >> $LOGFILE
 fi
-$OSMCONVERT $PRESENT_FILTERED_DUMP $NEXT_FILTERED_DUMP  --diff -o=$UPDATE 
+$OSMCONVERT $PRESENT_FILTERED_DUMP $NEXT_FILTERED_DUMP  --diff -o=$UPDATE
 ret=$?
 echo `date` >> $LOGFILE
 if [ "$ret" != "0" ]; then 

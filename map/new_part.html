@@ -1,0 +1,22 @@
+<script type="text/javascript">
+    /** predvyplneni uzivatelskeho jmena*/
+    if (map.user!=""){
+        document.forms["addPart"]['name'].value = map.user;
+    }
+    prepareDate(document.forms["addPart"]);
+</script>
+
+<div id="error" class="red center"></div>
+<div class="notice-yellow">Velikost useku je limitovana delkou vykresleneho OSM elementu cesta (way).</div>
+<form method="post" name="addPart" onsubmit="" id="add-note">
+    <div id="notice" class="notice-yellow"></div>
+    <label>Zadejte jméno pro identifikaci:</label>
+    <input id="name" type="text" name="name" placeholder="Jméno" maxlength="50"/>
+    <textarea name="note" placeholder="Zde vložte svou poznámku" maxlength="1000"></textarea>
+    <label>Informace platná k (den/měsíc/rok):</label>
+    <input type="date" name="date" maxlength="10"/>
+    <br/>
+    <br/>
+    <input type="button" class="button" value="Vložit" onclick="savePart()"/>
+    <input class="button" type="button" value="Reset" onclick="changeSidebarContent(CR_PART1)"/>
+</form>

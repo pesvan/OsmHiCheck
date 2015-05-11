@@ -20,11 +20,13 @@ $ways = array();
 $info = array();
 $ways['type'] = 'FeatureCollection';
 
-$query_string = "SELECT id, tstamp, hi_user_id, note, ST_AsGeoJSON(geom)
-from hicheck.notes";
 
 if($type==1){
-    $query_string .= " where hicheck.notes.id = '$note_id'";
+    $query_string = "SELECT id, tstamp, hi_user_id, note, date, ST_AsGeoJSON(geom)
+from hicheck.notes where hicheck.notes.id = '$note_id'";
+} else if($type==2){
+    $query_string = "SELECT id, tstamp, hi_user_id, note, date, ST_AsGeoJSON(geom)
+from hicheck.parts where hicheck.parts.id = '$note_id'";
 }
 
 
@@ -37,6 +39,7 @@ while($row = pg_fetch_assoc($data)){
     $prop = array();
     $prop['id']=$row['id'];
     $prop['timestamp']=$row['tstamp'];
+    $prop['date']=$row['date'];
     $prop['user']=$row['hi_user_id'];
     $prop['note']=$row['note'];
     $aux['type']='Feature';

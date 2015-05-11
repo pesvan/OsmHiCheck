@@ -27,7 +27,7 @@ if($type==0){
 	$ajxres['resp']=4;
 	$ajxres['dberror']=0;
 	$ajxres['msg']='unsupported type of data [0=relations;1=ways;2=nodes]';
-	sendajax($ajxres);
+	exit($ajxres);
 }
 	
 $query_string.="where id='$data_id'";
