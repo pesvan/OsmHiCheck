@@ -1,0 +1,26 @@
+[
+  {
+    "user": "Petr \u0160va\u0148a",
+    "type": "PROBLEM",
+    "note": "ss",
+    "date": "11\/5\/2015",
+    "user_is_osm": "1",
+    "node_id": "1445764671"
+  },
+  {
+    "user": "Petr",
+    "type": "OK",
+    "note": "aas",
+    "date": "11\/5\/2015",
+    "user_is_osm": "0",
+    "node_id": "1445764671"
+  },
+  {
+    "user": "Petr",
+    "type": "COMMENT",
+    "note": "komentar",
+    "date": "11\/5\/2015",
+    "user_is_osm": "0",
+    "node_id": "1445764671"
+  }
+]

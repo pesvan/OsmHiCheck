@@ -1,0 +1,74 @@
+[
+  {
+    "date": "11\/5\/2015",
+    "user": "username",
+    "note": "usernote",
+    "type": "OK",
+    "user_is_osm": "1",
+    "geometry": {
+      "type": "LineString",
+      "coordinates": [
+        [
+          16.731248593471,
+          48.944769847693
+        ],
+        [
+          16.7307227,
+          48.9451843
+        ],
+        [
+          16.730263965395,
+          48.945677771457
+        ]
+      ]
+    }
+  },
+  {
+    "date": "11\/5\/2015",
+    "user": "username",
+    "note": "usernote",
+    "type": "PROBLEM",
+    "user_is_osm": "0",
+    "geometry": {
+      "type": "LineString",
+      "coordinates": [
+        [
+          16.731248593471,
+          48.944769847693
+        ],
+        [
+          16.7307227,
+          48.9451843
+        ],
+        [
+          16.730263965395,
+          48.945677771457
+        ]
+      ]
+    }
+  },
+  {
+    "date": "11\/5\/2015",
+    "user": "username",
+    "note": "usernote",
+    "type": "COMMENT",
+    "user_is_osm": "1",
+    "geometry": {
+      "type": "LineString",
+      "coordinates": [
+        [
+          16.731248593471,
+          48.944769847693
+        ],
+        [
+          16.7307227,
+          48.9451843
+        ],
+        [
+          16.730263965395,
+          48.945677771457
+        ]
+      ]
+    }
+  }
+]

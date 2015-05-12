@@ -12,6 +12,7 @@ CREATE TABLE parts (
   note text,
   type int,
   osm_name int,
+  import_id bigint,
   date varchar(10)
 );
 

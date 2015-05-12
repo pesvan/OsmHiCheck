@@ -14,6 +14,7 @@ CREATE TABLE checked_guideposts (
   node varchar(50),
   image text,
   osm_name int,
+  import_id bigint,
   date varchar(10)
 );
 

@@ -1,0 +1,44 @@
+[
+  {
+    "date": "11\/5\/2015",
+    "user": "username",
+    "note": "nadrazi",
+    "type": "OK",
+    "user_is_osm": "1",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        16.736333333333,
+        48.937222222222
+      ]
+    }
+  },
+  {
+    "date": "11\/5\/2015",
+    "user": "username",
+    "note": "nadrazi",
+    "type": "PROBLEM",
+    "user_is_osm": "0",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        16.736111111111,
+        48.937444444444
+      ]
+    }
+  },
+  {
+    "date": "11\/5\/2015",
+    "user": "username",
+    "note": "nadrazi",
+    "type": "COMMENT",
+    "user_is_osm": "1",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        16.736111111111,
+        48.937222222222
+      ]
+    }
+  }
+]

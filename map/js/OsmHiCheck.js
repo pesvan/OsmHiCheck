@@ -68,6 +68,7 @@ var NODE_LIST = 4;
 var CR_PART1 = 5;
 var CR_PART2 = 6;
 var GUIDEPOST_INFO = 7;
+var IMPORT = 8;
 
 var CREATE_NODE = false;
 
@@ -1171,6 +1172,10 @@ function changeSidebarContent(content) {
                 setSidebarLoading(false);
             }
         })
+    } else if(content==IMPORT) {
+        $(function () {
+            $('#side-content').load("import.html");
+        })
     }
 }
 
@@ -1299,6 +1304,27 @@ function saveGuideInfo() {
             changeSidebarContent(DATA);
         });
     }
+}
+
+function importData() {
+    var file = document.getElementById('file-select').files[0];
+    var reader = new FileReader();
+    reader.readAsText(file);
+    reader.onload = function(){
+        console.log(reader.result);
+        $.post('php/import.php', {
+            data: reader.result,
+            type: getSelectedValue()
+        }, function (data) {
+            console.log(data);
+            if(!map.hasLayer(layers[USERNOTES].layer)){
+                map.addLayer(layers[USERNOTES].layer);
+            }
+            getData();
+            changeSidebarContent(LAYERS);
+        });
+    };
+
 }
 
 function validateFormPart() {

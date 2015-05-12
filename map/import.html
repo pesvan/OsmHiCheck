@@ -1,0 +1,26 @@
+<script type="text/javascript">
+    function openWin(file){
+        window.open(file, file, "width=400, height=400");
+    }
+</script>
+<div id="error" class="red center"></div>
+<form method="post" name="import" onsubmit="" id="add-note">
+    JSON<br />
+    <label>Vyberte typ importovanych dat:</label>
+    <select id="select">
+        <option value="0" selected>(Vyberte z nabidky)</option>
+        <option value="1">Uzivatelske poznamky (body)</option>
+        <option value="2">Uzivatelske poznamky (casti tras)</option>
+        <option value="3">Informace k rozcestnikum</option>
+    </select>
+    <input type="file" id="file-select" name="file"/>
+    <br />
+    <br />
+    <input class="button" type="button" value="Importovat" onclick="importData()"/>
+    <input class="button" type="button" value="Reset" onclick="changeSidebarContent(LAYERS)"/>
+</form>
+<br />
+Ukázky JSON:<br />
+<a onclick="openWin('json/example_point.json')" target="">Ukázka importu uživatelských poznámek - body</a><br />
+<a onclick="openWin('json/example_part.json')" target="">Ukázka importu uživatelských poznámek - části trasy</a><br />
+<a onclick="openWin('json/example_guidepost_info.json')" target="">Ukázka importu dat k rozcestníkům</a><br />
