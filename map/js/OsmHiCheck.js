@@ -3,6 +3,9 @@ $.ajaxSetup({
     cache: false
 });
 
+var NODES_WAYS_EDGE = 12;
+
+
 var map;
 
 //promenna pro manipulaci s prvkem - ovladani vrstev
@@ -77,6 +80,8 @@ var msgError = "Nevyplneno vse";
 var msgErrorCoords = "Spatny format souradnic";
 var msgErrorPart = "Cesta neni kompletni";
 var msgErrorDate = "Spatny format data";
+var msgErrorFile = "Nevybran zadny soubor";
+var msgErrorFileType = "Soubor neni povoleneho typu";
 var msgErrorSelect = "Nebyl vybran zadny typ";
 var msgErrorImage = "Spatny format jednoho nebo vice obrazku";
 var msgUserClickedOnRelation = "Bylo kliknuto na trasu nebo na prvek, poznámka bude obsahovat referenci na tyto prvky.";
@@ -444,9 +449,21 @@ function onOverlayAdd(e) {
  * @param e
  */
 function onOverlayRemove(e) {
-    layers[e.layer.options.id].isOn = false;
-    layers[e.layer.options.id].list = [];
-    layers[e.layer.options.id].layer.clearLayers();
+    var id = e.layer.options.id;
+    layers[id].isOn = false;
+    layers[id].list = [];
+    layers[id].drawn = [];
+    layers[id].layer.clearLayers();
+    if(map.getZoom()<NODES_WAYS_EDGE){
+        if((id==WARNINGS || id==ERRORS) && layers[TRACKS].isOn){
+            resetLayer(TRACKS);
+            getData();
+        }
+        if(id==ERRORS && layers[WARNINGS].isOn){
+            resetLayer(WARNINGS);
+            getData();
+        }
+    }
 }
 
 function mapMoved() {
@@ -488,8 +505,6 @@ function getData() {
             data: 'bbox=' + map.getBounds().toBBoxString() + '&type=0&bicycle=' + cycleRelationsAreOn,
             success: function (data) {
                 processListDataOSM(data);
-
-
             } //success
         });//ajax
     }
@@ -543,6 +558,7 @@ function getData() {
 function processListDataOSM(data) {
     filterUnused(data);
     var toDraw = filterNewRelations(data);
+
     for (var relation in toDraw[TRACKS]) {
         if (toDraw[TRACKS].hasOwnProperty(relation) && layers[TRACKS].isOn) {
             getWaysToDraw(toDraw[TRACKS][relation], TRACKS);
@@ -563,6 +579,7 @@ function processListDataOSM(data) {
             getWaysToDraw(toDraw[GUIDE][relation], GUIDE);
         }
     }
+
 }
 
 function processListDataAllWays(data){
@@ -628,14 +645,16 @@ function filterNewRelations(data) {
             }
         }
     }
-    if(layers[TRACKS].isOn && layers[WARNINGS].isOn){
-        toDraw[TRACKS] = $(toDraw[TRACKS]).not(layers[WARNINGS].drawn).get();
-    }
-    if(layers[TRACKS].isOn && layers[ERRORS].isOn){
-        toDraw[TRACKS] = $(toDraw[TRACKS]).not(layers[ERRORS].drawn).get();
-    }
-    if(layers[WARNINGS].isOn && layers[ERRORS].isOn){
-        toDraw[WARNINGS] = $(toDraw[WARNINGS]).not(layers[ERRORS].drawn).get();
+    if(map.getZoom()<NODES_WAYS_EDGE) {
+        if (layers[TRACKS].isOn && layers[WARNINGS].isOn) {
+            toDraw[TRACKS] = $(layers[TRACKS].list).not(layers[WARNINGS].drawn).get();
+        }
+        if (layers[TRACKS].isOn && layers[ERRORS].isOn) {
+            toDraw[TRACKS] = $(layers[TRACKS].list).not(layers[ERRORS].drawn).get();
+        }
+        if (layers[WARNINGS].isOn && layers[ERRORS].isOn) {
+            toDraw[WARNINGS] = $(layers[WARNINGS].list).not(layers[ERRORS].drawn).get();
+        }
     }
     return toDraw;
 }
@@ -723,8 +742,14 @@ function getWaysToDraw(rid, controlType) {
         dataType: 'json',
         data: 'rid=' + rid + '&control=' + controlType + '&zoom=' + map.getZoom(),
         success: function (data) {
-            layers[controlType].layer.addData(data);
-            layers[controlType].drawn[layers[controlType].drawn.length] = rid;
+            if(data.features.length>0){
+                if(map.getZoom()>=NODES_WAYS_EDGE && layers[TRACKS].isOn && layers[ERRORS].isOn){
+                    layers[ERRORS].layer.bringToFront();
+                }
+                layers[controlType].layer.addData(data);
+                layers[controlType].drawn[layers[controlType].drawn.length] = rid;
+            }
+
         }
     })
 }
@@ -1307,19 +1332,28 @@ function saveGuideInfo() {
 }
 
 function importData() {
+    setError("");
     var file = document.getElementById('file-select').files[0];
+    if(file==undefined){
+        setError(msgErrorFile);
+        return;
+    }
+    if (!(validateSelect())){
+        setError(msgErrorSelect);
+        return;
+    }
     var reader = new FileReader();
     reader.readAsText(file);
     reader.onload = function(){
-        console.log(reader.result);
+        if(file.type!="application/json"){
+            setError(msgErrorFileType);
+            return;
+        }
         $.post('php/import.php', {
             data: reader.result,
             type: getSelectedValue()
         }, function (data) {
             console.log(data);
-            if(!map.hasLayer(layers[USERNOTES].layer)){
-                map.addLayer(layers[USERNOTES].layer);
-            }
             getData();
             changeSidebarContent(LAYERS);
         });

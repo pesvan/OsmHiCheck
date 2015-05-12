@@ -13,6 +13,8 @@ const GREEN = 3;
 const YELLOW = 4;
 const BICYCLE = 5;
 
+const NODES_WAYS_EDGE = 12;
+
 /**
  * platne hodnoty tagu network
  * @return array
@@ -22,7 +24,7 @@ function getNetworkValueList(){
 }
 
 function getKctKeyList(){
-    return array("kct_blue", "kct_green", "kct_red", "kct_white", "kct_yellow");
+    return array("kct_blue", "kct_green", "kct_red", "kct_white", "kct_yellow", "kct_none", "kct_black", "kct_purple", "kct_orange");
 }
 
 /**
@@ -47,7 +49,7 @@ function getRouteValueList(){
  */
 function getOsmcValueList(){
     return array(
-        "f_color" => array("yellow", "red", "green", "blue", "white"),
+        "f_color" => array("yellow", "red", "green", "blue", "white", "black", "purple", "orange"),
         "b_color" => array("white", "yellow", "orange"),
         "symbol"  => array("bar", "corner", "backslash", "wheelchair", "dot", "triangle", "L", "bowl", "turned_T")
     );

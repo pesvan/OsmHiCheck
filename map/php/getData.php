@@ -124,7 +124,7 @@ if($controlLevel==5){
             $aux['int_type']=2;
         }
         $geom = json_decode($row['st_asgeojson']);
-        if($controlLevel!=3 && $zoomLevel>=12){
+        if($controlLevel!=3 && $zoomLevel>=NODES_WAYS_EDGE){
             $geom->coordinates = efficientFilter($geom->coordinates, $row['mid'], $zoom);
         } else if($zoomLevel<12 && $controlLevel!=3){ //redukce relace na jeden bod
             $geom->coordinates = $geom->coordinates[0];
@@ -136,7 +136,7 @@ if($controlLevel==5){
         $aux['properties']=$prop;
         $aux['geometry']=$geom;
         $info[] = $aux;
-        if($zoomLevel<12 && $controlLevel!=3){ //redukce relace na jeden bod
+        if($zoomLevel<NODES_WAYS_EDGE && $controlLevel!=3){ //redukce relace na jeden bod
             break;
         }
     }
