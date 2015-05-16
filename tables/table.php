@@ -113,7 +113,7 @@ function writeTag($tag, $tags, $kctKey)
                     if(checkTagOsmcKctColor($tags['osmc:symbol'], $color)>0){
                         $errorStr .= "typ cesty v rozporu u osmc:symbol/kct/route; ";
                         $red[] = 'osmc:symbol';
-                        $red[] = $kctKey;
+                        $red[] = $kctKey;                        
                     }
                 }
 
@@ -124,6 +124,7 @@ function writeTag($tag, $tags, $kctKey)
         <tr>
             <td><?php echo $row['id']; ?></td>
             <?php
+            $rid = $row['id'];
                 foreach($checked as $key){
                     if(array_key_exists($key, $tags) && $key==$kctKey){
                         $tags[$key] = "$kctKey: ".$tags[$key];
@@ -135,9 +136,9 @@ function writeTag($tag, $tags, $kctKey)
                     } else {
                         echo "<td>".$tags[$key]."</td>";
                     }
-                }
+                }        
             ?>
-
+            
         </tr>
         <?php } ?>
     </table>

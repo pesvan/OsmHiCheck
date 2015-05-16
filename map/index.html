@@ -4,7 +4,7 @@
 
     <title>OsmHiCheck - Mapa</title>
     <meta charset="utf-8"/>
-
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:300&subset=latin-ext' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="css/leaflet/leaflet.css"/>
     <link rel="stylesheet" type="text/css" href="css/leaflet/Control.OSMGeocoder.css"/>
     <link rel="stylesheet" type="text/css" href="css/leaflet/L.Control.Sidebar.css"/>
@@ -15,6 +15,8 @@
     <link rel="stylesheet" type="text/css" href="css/leaflet/MarkerCluster.Default.css" />
     <link rel="stylesheet" type="text/css" href="css/leaflet/leaflet.awesome-markers.css" />
     <link rel="stylesheet" type="text/css" href="http://code.ionicframework.com/ionicons/1.5.2/css/ionicons.min.css">
+
+   
 
     <script type="text/javascript" src="js/leaflet/leaflet.js"></script>
     <script type="text/javascript" src="js/leaflet/leaflet-hash.js"></script>
@@ -37,13 +39,56 @@
     <div id="load-circle" class="circle green"></div>
     <div id="side-loading"><br/></div>
     <div id="side-menu">
-        <a href="../tables/" target="_blank">Zobrazit tabulky</a><br />
-        <a onclick="changeSidebarContent(LAYERS)">Zobrazení</a> -
-        <a onclick="changeSidebarContent(DATA)">Data & Tagy</a><br/>
-        Vytvořit poznámku: <a onclick="changeSidebarContent(CR_NODE1)">bod</a> -
-        <a onclick="changeSidebarContent(CR_PART1)">část trasy</a><br/>
-        <a onclick="changeSidebarContent(IMPORT)">Hromadný import poznámek</a><br />
+        <a href="../tables/" target="_blank">Zobrazit tabulky</a>
+        <div class="menu">
+            <span>
+                <ul id="nav">                    
+                    <li><a onclick="changeSidebarContent(LAYERS)">Zobrazení</a></li>
+                    <li><a onclick="changeSidebarContent(DATA)">Data & Tagy</a></li>
+                    <li><a>Přidat</a>
+                        <div class="subs">
+                            <div>
+                                <ul>
+                                    <li>
+                                        <ul>
+                                            <li id="inner"><a onclick="changeSidebarContent(CR_NODE1)">Bod s poznámkou</a></li> 
+                                            <li id="inner"><a onclick="changeSidebarContent(CR_PART1)">Část trasy s poznámkou</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>  
+                    </li>                  
+                    <li><a onclick="changeSidebarContent(IMPORT)">Import</a></li>
+                </ul>
+            </span>
+        </div>
     </div>
+    <script type="text/javascript">
+jQuery(window).load(function() {
+
+    $("#nav > li > a").click(function () { // binding onclick
+        if ($(this).parent().hasClass('selected')) {
+            $("#nav .selected div div").slideUp(0); // hiding popups
+            $("#nav .selected").removeClass("selected");
+        } else {
+            $("#nav .selected div div").slideUp(0); // hiding popups
+            $("#nav .selected").removeClass("selected");
+
+            if ($(this).next(".subs").length) {
+                $(this).parent().addClass("selected"); // display popup
+                $(this).next(".subs").children().slideDown(0);
+            }
+        }
+    }); 
+
+    $("#nav > li > div > div > ul > li > ul > li > a").click(function () { //mam rad css z internetu
+        $("#nav .selected div div").slideUp(0); // hiding popups
+            $("#nav .selected").removeClass("selected");
+    });
+
+});
+</script>
     <br/>
     <div id="side-whatswrong"></div>
     <div id="side-content"></div>
@@ -51,6 +96,9 @@
     <div id="side-layer"></div>
     <div id="side-layer2">
        <label><input type="checkbox" id="cycle" onclick="processCheckbox()"/>Zahrnout cyklotrasy</label>
+    </div>
+    <div id="side-bottom">
+        Aktuálnost OSM dat: <span id="side-upload-data"></span>
     </div>
 
 </div>

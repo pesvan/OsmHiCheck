@@ -1113,11 +1113,7 @@ function changeSidebarContent(content) {
     document.getElementById('side-layer2').style.display = "none";
     /** vrstvy */
     if (content == LAYERS) {
-        document.getElementById('side-layer2').style.display = "block";
-        element.innerHTML = "Poslední aktualizace OSM dat: ";
-        $(function () {
-            $('#side-load').load("../last_update.txt");
-        });
+        document.getElementById('side-layer2').style.display = "block";        
         document.getElementById('side-layer').appendChild(controlLayersHandler.onAdd(map));
 
 
@@ -1180,28 +1176,15 @@ function changeSidebarContent(content) {
 
 
         /** seznam poznamek*/
-    } else if (content == NODE_LIST) {
-        setSidebarLoading(true);
-        element.innerHTML = "<h3>Seznam uživatelských poznámek</h3>";
-        $.ajax({
-            url: 'php/getNote.php',
-            dataType: 'json',
-            data: 'nid=0&type=0',
-            error: function () {
-                element.innerHTML += "<div class='red'>Nepodařilo se získat data ze serveru</div>";
-            },
-            success: function (data) {
-                printUserNodes(data, element);
-            },
-            complete: function () {
-                setSidebarLoading(false);
-            }
-        })
     } else if(content==IMPORT) {
         $(function () {
             $('#side-content').load("import.html");
         })
     }
+
+    $(function () {
+        $('#side-upload-data').load("../last_update.txt");
+    });
 }
 
 /**
