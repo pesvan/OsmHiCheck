@@ -1,9 +1,12 @@
 <?php
 require 'db.php';
 require 'func.php';
-// Same as error_reporting(E_ALL);
+
 ini_set('display_errors', 1);
-ini_set('error_reporting', E_ALL);// Same as error_reporting(E_ALL);
+ini_set('error_reporting', E_ALL);
+
+const USERNOTES = 4;
+const USERPARTS = 6;
 
 if((isset($_GET['nid'])) && (isset($_GET['type']))){
     $note_id = $_GET['nid'];
@@ -21,10 +24,10 @@ $info = array();
 $ways['type'] = 'FeatureCollection';
 
 
-if($type==1){
+if($type==USERNOTES){
     $query_string = "SELECT id, tstamp, type, hi_user_id, note, date, osm_name, ST_AsGeoJSON(geom)
 from hicheck.notes where hicheck.notes.id = '$note_id'";
-} else if($type==2){
+} else if($type==USERPARTS){
     $query_string = "SELECT id, tstamp, type, hi_user_id, note, date, osm_name, ST_AsGeoJSON(geom)
 from hicheck.parts where hicheck.parts.id = '$note_id'";
 }

@@ -1,17 +1,25 @@
 <?php
-phpinfo();
 ini_set('display_errors', 1);
 ini_set('error_reporting', E_ALL);
-$data = $_POST['data'];
-$name = pg_escape_string($_POST['name']);
-$file = time()."_".$name;
-$info = getimagesize($data);
+//$data = $_POST['data'];
+//$name = pg_escape_string($_POST['name']);
+//$file = time()."_".$name;
+//$info = getimagesize($data);
 
 /** kontrola obrazku - velikost, typ*/
-if($info[0]*$info[1] > 5242880 || ($info['mime']!="image/jpeg" && $info['mime']!="image/png")){
-    exit(1);
-}
-/** zmenseni */
+/*if($info[0]*$info[1] > 5242880 || ($info['mime']!="image/jpeg" && $info['mime']!="image/png")){
+    echo 'ss';
+    exit(1);*/
+//}
+echo 'ss';
+/*$myfile = fopen("testfile.txt", "w") 
+fwrite($myfile,'lk');
+fclose($myfile);*/
+/*list($type, $data) = explode(';', $data);
+list(, $data) = explode(',', $data);
+$data = base64_decode($data);
+file_put_contents("".$file.".png", $data);*/
+/** zmenseni *//*
 if($info['mime']=="image/png"){
     $width = $info[0];
     $height = $info[1];
@@ -31,7 +39,7 @@ if($info['mime']=="image/png"){
     imagepng($image, "../../upload/".$file);
 
 
-}
+}*/
 
 
-exit($_POST['name']);
+//exit($_POST['name']);

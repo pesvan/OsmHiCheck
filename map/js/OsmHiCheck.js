@@ -1,7 +1,4 @@
-$.ajaxSetup({
-    // Disable caching of AJAX responses
-    cache: false
-});
+
 
 var NODES_WAYS_EDGE = 12;
 
@@ -73,23 +70,24 @@ var CR_PART2 = 6;
 var GUIDEPOST_INFO = 7;
 var IMPORT = 8;
 
+
 var CREATE_NODE = false;
 
-var msgCreateNodeBefore = "Pro vytvoreni bodu s poznamkou kliknete na pozadovanou lokaci na mape.";
-var msgError = "Nevyplneno vse";
-var msgErrorCoords = "Spatny format souradnic";
-var msgErrorPart = "Cesta neni kompletni";
-var msgErrorDate = "Spatny format data";
-var msgErrorFile = "Nevybran zadny soubor";
-var msgErrorFileType = "Soubor neni povoleneho typu";
-var msgErrorSelect = "Nebyl vybran zadny typ";
-var msgErrorImage = "Spatny format jednoho nebo vice obrazku";
+var msgCreateNodeBefore = "Pro vytvoření bodu s poznámkou klikněte na požadovanou lokaci na mapě.";
+var msgError = "Nevyplněno vše";
+var msgErrorCoords = "Špatný formát souřadnic";
+var msgErrorPart = "Cesta není kompletní";
+var msgErrorDate = "Špatný formát data";
+var msgErrorFile = "Nevybrán žádný soubor";
+var msgErrorFileType = "Soubor není povoleného typu";
+var msgErrorSelect = "Nebyl vybrán žádný typ";
+var msgErrorImage = "Špatný formát jednoho nebo více obrázků";
 var msgUserClickedOnRelation = "Bylo kliknuto na trasu nebo na prvek, poznámka bude obsahovat referenci na tyto prvky.";
-var msgCreateLineBefore = "Pro vyznaceni casti trasy kliknete na pozadovany usek. Pri urovni zoomu 15 a blize (= meritko vlevo dole ukazuje 300m a mene) se zobrazi take ostatni cesty (cesty, ktere nejsou soucasti turistickych relaci; way:highway=)";
+var msgCreateLineBefore = "Pro vyznačení části trasy klikněte na požadovaný úsek. Při úrovni zoomu 15 a blíže (tzn. měřítko vlevo dole ukazuje 300 m a méně) se zobrazí také ostatní cesty, které nejsou součástí turistických relací (way:highway=)";
 
 var lngLatFromClick = null;
 var dataFromClick = false;
-
+//pomocny marker
 var temporaryMarker = null;
 
 var selectedWayToControl;
@@ -97,10 +95,15 @@ var selectedWayToControl;
 var sidebarContent = null;
 var tempIcon;
 
+
+//vypnuti cachovani AJAXU
+$.ajaxSetup({    
+    cache: false
+});
+
 function initMap() {
 
     document.getElementById('cycle').checked = false;
-
     /** mapa **/
     map = new L.Map('mymap', {
         zoomControl: false
@@ -122,9 +125,10 @@ function initMap() {
 
     map.setView(new L.LatLng(48.952, 16.734), 13);
     map.addLayer(osm);
-    L.AwesomeMarkers.Icon.prototype.options.prefix = 'ion';
 
     /** ikony */
+    L.AwesomeMarkers.Icon.prototype.options.prefix = 'ion';
+
     layers[TRACKS].icon = L.AwesomeMarkers.icon({
         markerColor: 'green',
         icon: 'navigate'
@@ -164,6 +168,7 @@ function initMap() {
 
     /** zobrazi zoom a souradnice v adrese  */
     new L.Hash(map);
+
     /** vyhledavani **/
     var osmGeoCoder = new L.Control.OSMGeocoder();
     osmGeoCoder.setPosition('topleft');
@@ -290,7 +295,7 @@ function initMap() {
     layers[USERNOTES].layer = L.geoJson(null, {
         id: USERNOTES,
         pointToLayer: function (feature, latlng) {
-            var osmLink = "";
+            var osmLink = ""; //vytvoreni odkazu na OSM, pokud to uzivatel potvrdil pri vytvoreni
             if(feature.properties.osm==1){
                 osmLink += "<a target='_blank' href='http://www.openstreetmap.org/user/"+feature.properties.user+"'>(OSM uživatel)</a>";
             }
@@ -303,11 +308,12 @@ function initMap() {
                 "aktuálnost poznámky:" + feature.properties.date + "<br/>" +
                 "čas vložení: " + feature.properties.timestamp + "<br/>" +
                 "uživatel: " + feature.properties.user + " " + osmLink +"<br/>" +
-                "<a onclick='deleteUserContent(CR_NODE1,"+ feature.properties.id+")'>Odstranit poznamku</a><br/>"
+                "<a onclick='deleteUserContent(CR_NODE1,"+ feature.properties.id+")'>Odstranit poznámku</a><br/>"
             );
         }
     });
 
+    /** vrstva pro zobrazeni vsech cest pri pridavani useku cesty */
     layers[ALLWAYS].layer = L.geoJson(null, {
         id: ALLWAYS,
         style: function () {
@@ -319,6 +325,7 @@ function initMap() {
         onEachFeature: onEachFeature
     });
 
+    /** vrstva pro zobr. uzivatelskych useku cesty */
     layers[USERPARTS].layer = L.geoJson(null, {
         id: USERPARTS,
         style: function() {
@@ -331,31 +338,37 @@ function initMap() {
 
     /** nastaveni vrstev*/
     var overlays = {
-        "Zobrazit turistické relace": layers[TRACKS].layer,
-        "Zobrazit rozcestníky": layers[GUIDE].layer,
+        "Turistické relace": layers[TRACKS].layer,
+        "<span class='blue'>Rozcestníky</span>": layers[GUIDE].layer,
         "<span class='red'>Zapnout kontrolu chyb v relacích</span>": layers[ERRORS].layer,
-        "<span class='orange'>Zvýraznit relace s chybejicimi tagy</span>": layers[WARNINGS].layer,
-        "Zobrazit uživatelské poznamky": layers[USERNOTES].layer,
-        "Zobrazit uzivateli zvyraznene useky": layers[USERPARTS].layer
+        "<span class='orange'>Zvýraznění relací s chybějícími tagy</span>": layers[WARNINGS].layer,
+        "<span class='purple'>Uživatelské poznámky</span>": layers[USERNOTES].layer,
+        "<span class='lightblue'>Uživateli zvýrazněné úseky</span>": layers[USERPARTS].layer
     };
 
-    /** ovladaci prvek pro zobrazovani vrstev, se kterym je treba manipulovat */
+    /** ovladaci prvek pro zobrazovani vrstev, se kterym je treba manipulovat, presun na sidebar */
     controlLayersHandler = L.control.layers({
-        "OpenStreetMap Mapnik": osm,
-        "nic": none
+        "OpenStreetMap Mapnik": osm
     }, overlays, {collapsed: false});
     controlLayersHandler.setPosition('topleft').addTo(map);
     controlLayersHandler._container.remove();
     changeSidebarContent(LAYERS);
 
+    //inicializace nastroje pro vyber useku
     selectedWayToControl = new L.Control.LineStringSelect({})
     map.addControl(selectedWayToControl);
+
 
     map.on('moveend', mapMoved);
     map.on('overlayadd', onOverlayAdd);
     map.on('overlayremove', onOverlayRemove);
     map.on('click', onClickElsewhere);
     map.on('zoomend', mapZoomed);
+
+    jQuery.get("../last_update.txt", function (data) {
+        var x= document.getElementsByClassName('leaflet-control-attribution');
+        x[0].innerHTML = "<a href='https://github.com/pesvan/OsmHiCheck'>Github</a> | OSM data updated: "+data+" <br /> "+x[0].innerHTML;
+    });
 }
 
 function createNode(e, bind) {
@@ -372,7 +385,6 @@ function createNode(e, bind) {
 }
 
 function onEachFeature(feature, layer) {
-
     setTimeout(function () {
         setSidebarLoading(false);
     }, 1000);
@@ -391,8 +403,7 @@ function onEachFeatureUserPart(feature, layer){
         "aktuálnost poznámky:" + feature.properties.date + "<br/>" +
         "čas: " + feature.properties.timestamp + "<br/>" +
         "uživatel: " + feature.properties.user + " " + osmLink +"<br/>" +
-
-        "<a onclick='deleteUserContent(CR_PART1,"+ feature.properties.id+")'>Odstranit poznamku</a><br/>"
+        "<a onclick='deleteUserContent(CR_PART1,"+ feature.properties.id+")'>Odstranit poznámku</a><br/>"
 
     );
 }
@@ -435,7 +446,6 @@ function onOverlayAdd(e) {
     if (!canGetData) {
         return;
     }
-
     canGetData = false;
     layers[e.layer.options.id].isOn = true;
     getData();
@@ -558,27 +568,43 @@ function getData() {
 function processListDataOSM(data) {
     filterUnused(data);
     var toDraw = filterNewRelations(data);
+    var isSomethingToDraw = false;
+    for (var array in toDraw){ //jestli neni nic k vykresleni, konec funkce
+        if(toDraw[array].length!=0){
+            isSomethingToDraw = true;
+            break;
+        }
+    }
 
-    for (var relation in toDraw[TRACKS]) {
-        if (toDraw[TRACKS].hasOwnProperty(relation) && layers[TRACKS].isOn) {
-            getWaysToDraw(toDraw[TRACKS][relation], TRACKS);
+    if(isSomethingToDraw){
+        for (var relation in toDraw[TRACKS]) {
+            if (toDraw[TRACKS].hasOwnProperty(relation) && layers[TRACKS].isOn) {
+                getWaysToDraw(toDraw[TRACKS][relation], TRACKS);
+            }
         }
-    }
-    for (relation in toDraw[WARNINGS]) {
-        if (toDraw[WARNINGS].hasOwnProperty(relation) && layers[WARNINGS].isOn) {
-            getWaysToDraw(toDraw[WARNINGS][relation], WARNINGS);
+        for (relation in toDraw[WARNINGS]) {
+            if (toDraw[WARNINGS].hasOwnProperty(relation) && layers[WARNINGS].isOn) {
+                getWaysToDraw(toDraw[WARNINGS][relation], WARNINGS);
+            }
         }
-    }
-    for (relation in toDraw[ERRORS]) {
-        if (toDraw[ERRORS].hasOwnProperty(relation) && layers[ERRORS].isOn) {
-            getWaysToDraw(toDraw[ERRORS][relation], ERRORS);
+        for (relation in toDraw[ERRORS]) {
+            if (toDraw[ERRORS].hasOwnProperty(relation) && layers[ERRORS].isOn) {
+                getWaysToDraw(toDraw[ERRORS][relation], ERRORS);
+            }
         }
-    }
-    for (relation in toDraw[GUIDE]) {
-        if (toDraw[GUIDE].hasOwnProperty(relation) && layers[GUIDE].isOn) {
-            getWaysToDraw(toDraw[GUIDE][relation], GUIDE);
+        for (relation in toDraw[GUIDE]) {
+            if (toDraw[GUIDE].hasOwnProperty(relation) && layers[GUIDE].isOn) {
+                getWaysToDraw(toDraw[GUIDE][relation], GUIDE);
+            }
         }
+    } else {
+        setSidebarLoading(false);
     }
+
+    
+
+    
+
 
 }
 
@@ -601,14 +627,14 @@ function processListDataUser(data, type) {
         for (var element in data) {
             if (data.hasOwnProperty(element)  && layers[USERNOTES].isOn && layers[USERNOTES].list.indexOf(data[element]) == -1) {
                 layers[USERNOTES].list[layers[USERNOTES].list.length] = data[element];
-                getNotesToDraw(data[element], 1);
+                getNotesToDraw(data[element], USERNOTES);
             }
         }
     } else if(type==USERPARTS){
         for (element in data) {
             if (layers[USERPARTS].isOn && layers[USERPARTS].list.indexOf(data[element]) == -1) {
                 layers[USERPARTS].list[layers[USERPARTS].list.length] = data[element];
-                getNotesToDraw(data[element], 2);
+                getNotesToDraw(data[element], USERPARTS);
             }
         }
     }
@@ -638,7 +664,7 @@ function filterUnused(data) {
 function filterNewRelations(data) {
     var toDraw = [];
     for(var i = 0; i < layers.length; i++){
-        if (i != USERNOTES && i != ALLWAYS) {
+        if (i != USERNOTES && i != ALLWAYS && i!=USERPARTS) {
             if(layers[i].isOn){
                 toDraw[i] = $(data).not(layers[i].list).get();
                 layers[i].list = data;
@@ -721,9 +747,9 @@ function getNotesToDraw(nid, type) {
         dataType: 'json',
         data: 'nid=' + nid + '&type='+type,
         success: function (data) {
-            if(type==1){
+            if(type==USERNOTES){
                 layers[USERNOTES].layer.addData(data);
-            } else if(type==2){
+            } else if(type==USERPARTS){
                 layers[USERPARTS].layer.addData(data);
             }
 
@@ -781,10 +807,10 @@ function printGuideInfo(data){
                 if(data[info].osm_name==1){
                     osmLink += "<a target='_blank' href='http://www.openstreetmap.org/user/"+data[info].hi_user_id+"'>(OSM uživatel)</a>";
                 }
-                load.innerHTML += "Uzivatel: "+data[info].hi_user_id + " " + osmLink + "<br />";
+                load.innerHTML += "Uživatel: "+data[info].hi_user_id + " " + osmLink + "<br />";
                 load.innerHTML += "Typ: "+resolveSelectType(data[info].type)+"</span><br />";
-                load.innerHTML += "Komentar: "+data[info].note+"<br />";
-                load.innerHTML += "Platne k datu: "+data[info].date+"<br />";
+                load.innerHTML += "Komentář: "+data[info].note+"<br />";
+                load.innerHTML += "Platné k datu: "+data[info].date+"<br />";
                 load.innerHTML += "<a onclick='deleteUserContent(GUIDEPOST_INFO,"+data[info].id+")'>(Odstranit)</a>";
                 load.innerHTML += "<br />";
             }
@@ -793,7 +819,7 @@ function printGuideInfo(data){
 }
 
 function deleteUserContent(type, id){
-    var r = confirm("Opravdu chcete tento uzivatelsky prispevek smazat?");
+    var r = confirm("Opravdu chcete tento uživatelský příspevěk smazat?");
     if(r){
         $.ajax({
             url: 'php/deleteUserContent.php',
@@ -824,9 +850,9 @@ function resolveSelectType(type){
     if(type==1){
         return "<span class='green'>OK</span>";
     } else if(type==2){
-        return "<span class='red'>Problem</span>";
+        return "<span class='red'>Problém</span>";
     } else if(type==3){
-        return "Jen komentar /foto";
+        return "Jen komentář/foto";
     } else return "chyba";
 }
 
@@ -838,14 +864,6 @@ function resolveSelectType(type){
  */
 function JSONToTable(data) {
     var table = "";
-    /*if(data==RELATION && (selected[RELATION].errorNumber > 0
-    || selected[RELATION].incorrectNumber > 0)){
-        table = "<table class='relation'>";
-        table += makeTableRow("chyba:", selected[data].errorNumber, undefined);
-        table += makeTableRow("nespravne tagy:", selected[data].incorrectNumber, undefined);
-        table += "</table>";
-    }*/
-
     table += "<table class='relation'>";
         for (var key in selected[data].data) {
         if (key == 'tags') continue;
@@ -853,8 +871,8 @@ function JSONToTable(data) {
             table += makeTableRow(key, selected[data].data[key], undefined);
         }
     }
-    if (data == RELATION) {
 
+    if (data == RELATION) {
         var faulted = [];
         if(selected[RELATION].errorNumber > 0 || selected[RELATION].incorrectNumber > 0) {
             var error = getErrorTags(selected[data].data['tags'], selected[data].kctKey, selected[data].errorNumber)
@@ -864,6 +882,7 @@ function JSONToTable(data) {
                     faulted[bad] = '';
                 }
             }
+
             var incorrect = getIncorrectTags(selected[data].data['tags'], selected[data].kctKey, selected[data].incorrectNumber);
             for (bad in incorrect) {
                 if(incorrect.hasOwnProperty(bad) && !(bad in error)){
@@ -871,10 +890,13 @@ function JSONToTable(data) {
                     faulted[bad] = '';
                 }
             }
+
             setWrongMessage(incorrect, selected[RELATION].errorNumber);
+
         } else {
             setWrongMessage(null, 0);
         }
+
         var missing = getMissingTags(selected[data].data['tags']);
         for (tag in missing) {
             if (missing.hasOwnProperty(tag)){
@@ -882,7 +904,9 @@ function JSONToTable(data) {
             }
         }
     }
+
     if(data==RELATION){
+
         for (var tag in selected[data].data['tags']) {
             if (selected[data].data['tags'].hasOwnProperty(tag)) {
                 if (!(tag in faulted)) { //zvyraznene tagy jsou jiz vypsany pred timto
@@ -890,14 +914,15 @@ function JSONToTable(data) {
                 }
             }
         }
+
     } else {
+
         for (tag in selected[data].data['tags']) {
             if (selected[data].data['tags'].hasOwnProperty(tag)) {
                 table += makeTableRow(tag, selected[data].data[key][tag], undefined);
             }
         }
     }
-
 
     table += "</table>";
     return table;
@@ -906,29 +931,33 @@ function JSONToTable(data) {
 function setWrongMessage(incorrect, errNum){
     var element = document.getElementById('side-whatswrong');
     element.innerHTML = "";
+
     if(!(layers[ERRORS].isOn)){
-        element.innerHTML += "Kontrola spravnosti hodnot je vypnuta.";
+        element.innerHTML += "<div class='notice-yellow'>Kontrola správnosti hodnot je vypnuta.</div>";
         return;
     }
+
     if(incorrect==null && errNum==0){
-        element.innerHTML += "Automaticka kontrola nenalezla nesrovnalosti.";
+        element.innerHTML += "<div class='notice-yellow'>Automatická kontrola nenalezla nesrovnalosti.</div>";
         return;
     }
-    element.innerHTML += "Nalezene nesrovnalosti v relaci: <br />";
+
+    element.innerHTML += "<div class='notice-yellow'>Nalezené nesrovnalosti v relaci: </div><br />";
+
     for (var value in incorrect){
-        element.innerHTML += "tag "+value+" ma nepovolenou hodnotu<br />";
+        element.innerHTML += "<div class='red white-text'>Tag "+value+" ma nepovolenou hodnotu</div><br />";
     }
 
     if(errNum>=4){
-        element.innerHTML += "Nesouhlasi barvy trasy u tagu kct_*/osmc:symbol<br />";
+        element.innerHTML += "<div class='red white-text'>Nesouhlasí navzájem barvy trasy u tagů kct_* a osmc:symbol</div><br />";
         errNum -= 4;
     }
     if(errNum>=2){
-        element.innerHTML += "Nesouhlasi typ trasy u tagu route/osmc:symbol/kct_*<br />";
+        element.innerHTML += "<div class='red white-text'>Nesouhlasí navzájem typ trasy u tagů route, osmc:symbol a kct_*<br /></div>";
         errNum -= 2;
     }
     if(errNum>=1){
-        element.innerHTML += "Nesouhlasi typ site u tagu network/kct_*<br />";
+        element.innerHTML += "<div class='red white-text'>Nesouhlasí typ sítě u tagů network a kct_*</div><br />";
     }
 }
 
@@ -966,7 +995,6 @@ function getIncorrectTags(tags, kctKey, number){
         if('network' in tags){
             incorrect['network'] = tags['network'];
         }
-
         number -= 128;
     }
     if(number>=64){
@@ -1025,6 +1053,7 @@ function getErrorTags(tags, kctKey, number){
         }
         number -= 4;
     }
+
     if(number>=2){
         if('osmc:symbol' in tags && !('osmc:symbol' in error)){
             error['osmc:symbol'] = tags['osmc:symbol'];
@@ -1037,6 +1066,7 @@ function getErrorTags(tags, kctKey, number){
         }
         number -=2;
     }
+
     if(number>=1){
         if(kctKey in tags && !(kctKey in error)) {
             error[kctKey] = tags[kctKey];
@@ -1071,12 +1101,12 @@ function makeTableRow(key, value, htmlclass) {
  */
 function sidebarClear() {
     document.getElementById('side-layer').innerHTML = "";
-    document.getElementById('side-load').innerHTML = "";
     document.getElementById('side-content').innerHTML = "";
     document.getElementById('side-whatswrong').innerHTML = "";
     if (map.hasLayer(temporaryMarker)) {
         map.removeLayer(temporaryMarker);
     }
+    document.getElementById('side-layer2').style.display = "none";
 }
 
 /**
@@ -1103,47 +1133,41 @@ function changeSidebarContent(content) {
     sidebarClear();
     sidebarContent = content;
     CREATE_NODE = false;
-    if(content!=CR_PART1 && content!=CR_PART2){
+    if(content!=CR_PART1 && content!=CR_PART2){        
         layers[ALLWAYS].list = [];
         layers[ALLWAYS].layer.clearLayers();
         map.removeLayer(layers[ALLWAYS].layer);
         layers[ALLWAYS].isOn = false;
     }
-    var element = document.getElementById('side-content');
-    document.getElementById('side-layer2').style.display = "none";
-    /** vrstvy */
-    if (content == LAYERS) {
-        document.getElementById('side-layer2').style.display = "block";        
-        document.getElementById('side-layer').appendChild(controlLayersHandler.onAdd(map));
+    var element = document.getElementById('side-content');    
 
+
+        /** vrstvy */
+    if (content == LAYERS) {        
+        $(function () {
+            $('#side-content').load("layers.html");
+        })
 
         /** data & tagy */
-    } else if (content == DATA) {
-        if (selectedElement == undefined) {
-            element.innerHTML = "Klikněte na některou trasu nebo bod pro zobrazení dat (Je potřeba zapnout některou vrstvu)";
-        } else {
-            var link = JOSMLinkBuilder(selected[RELATION].data, selectedElement, selected[selectedElement].data);
-            element.innerHTML = "<a target='_blank' href='" + link + "'>Upravit v JOSM</a>"
-            if (selectedElement == WAY) {
-                element.innerHTML += "<h3>Relace</h3>" + JSONToTable(RELATION);
-                element.innerHTML += "<h3>Cesta</h3>" + JSONToTable(WAY);
-            } else if (selectedElement == NODE) {
-                element.innerHTML += "<br /><a onclick='changeSidebarContent(GUIDEPOST_INFO)'>Vlozeni informace/kontroly/fotky k uzlu</a>";
-                element.innerHTML += "<h3>Uzel</h3>" + JSONToTable(NODE);
-                getGuideInfo(selected[NODE].id);
-            }
-        }
+    } else if (content == DATA) {       
+        $(function () {
+            $('#side-content').load("data.html");
+        })
+
         /** vlozit info k rozcestniku */
     } else if (content==GUIDEPOST_INFO){
         $(function () {
             $('#side-content').load("new_guide_info.html");
         })
 
+
         /** vytvorit poznamku - cast 1 */
     } else if (content == CR_NODE1) {
         map.addLayer(layers[USERNOTES].layer);
         CREATE_NODE = true;
-        element.innerHTML = msgCreateNodeBefore;
+        element.innerHTML = "<div class='notice-yellow'>"+msgCreateNodeBefore+"</div>";
+
+
         /** vytvorit poznamku - cast 2 */
     } else if (content == CR_NODE2) {
         $(function () {
@@ -1161,7 +1185,7 @@ function changeSidebarContent(content) {
 
         getData();
 
-        element.innerHTML = msgCreateLineBefore;
+        element.innerHTML = "<div class='notice-yellow'>"+msgCreateLineBefore+"</div>";
 
         if(selectedWayToControl._startMarker!=null){
             selectedWayToControl.disable();
@@ -1182,9 +1206,8 @@ function changeSidebarContent(content) {
         })
     }
 
-    $(function () {
-        $('#side-upload-data').load("../last_update.txt");
-    });
+
+    
 }
 
 /**
@@ -1233,11 +1256,11 @@ function prepareForm() {
     element['lat'].value = lngLatFromClick.lat;
     element['lng'].value = lngLatFromClick.lng;
     var div = document.getElementById('notice');
-    if (dataFromClick) {
+  /*  if (dataFromClick) { //featura, ktera nestihla deadline BP
         div.innerHTML = msgUserClickedOnRelation;
     } else {
         div.innerHTML = "";
-    }
+    }*/
     if (map.user!=""){
         element['name'].value = map.user;
     }
@@ -1264,10 +1287,10 @@ function saveNote() {
             type: getSelectedValue()
         }, function (data) {
             if (map.hasLayer(temporaryMarker)) {
-                console.log(data);
                 map.removeLayer(temporaryMarker);
                 map.user = getFormValue('name', 'addNote');
             }
+            console.log(data);
             layers[USERNOTES].layer.clearLayers();
             layers[USERNOTES].list = [];
             getData();
@@ -1287,7 +1310,6 @@ function savePart() {
             osm: getOsmNameValue(),
             obj: JSON.stringify(selectedWayToControl.getSelection())
         }, function (data) {
-            console.log(data);
             selectedWayToControl.disable();
             map.user = getFormValue('name', 'addPart');
             getData();
@@ -1307,7 +1329,6 @@ function saveGuideInfo() {
             type: getSelectedValue(),
             osm: getOsmNameValue()
     }, function (data) {
-            console.log(data);
             map.user = getFormValue('name', 'addGuideInfo');
             changeSidebarContent(DATA);
         });
@@ -1336,7 +1357,6 @@ function importData() {
             data: reader.result,
             type: getSelectedValue()
         }, function (data) {
-            console.log(data);
             getData();
             changeSidebarContent(LAYERS);
         });
@@ -1391,7 +1411,6 @@ function validateFormGuideInfo() {
 
 function validateFormNote() {
     var element = document.forms["addNote"];
-    console.log(element['photos[]']);
     if (CoordsDMS) { //pro ulozeni do db potrebuji decimal format souradnice
         changeCoordinatesRepresentation();
     } else {
@@ -1443,6 +1462,7 @@ function validateImages(files){
 }
 
 function uploadImages(files, name){
+    console.log(files, name);
     var names = [];
     for(var i = 0; i < files.length; i++){
         var file = files[i];
@@ -1514,7 +1534,7 @@ function degreesDecimalToDMS(decimal) {
  * @return {number}
  */
 function DMSToDecimal(DMS) {
-    return parseInt(DMS[0]) + (parseInt(DMS[1]) / 60) + (parseInt(DMS[2]) / 3600);
+    return (parseInt(DMS[0]) + (parseInt(DMS[1]) / 60) + (parseInt(DMS[2]) / 3600)).toFixed(5);
 }
 
 function simpleParseDMS(DMSString) {

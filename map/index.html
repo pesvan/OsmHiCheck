@@ -64,44 +64,40 @@
             </span>
         </div>
     </div>
-    <script type="text/javascript">
-jQuery(window).load(function() {
 
-    $("#nav > li > a").click(function () { // binding onclick
-        if ($(this).parent().hasClass('selected')) {
-            $("#nav .selected div div").slideUp(0); // hiding popups
-            $("#nav .selected").removeClass("selected");
-        } else {
-            $("#nav .selected div div").slideUp(0); // hiding popups
-            $("#nav .selected").removeClass("selected");
-
-            if ($(this).next(".subs").length) {
-                $(this).parent().addClass("selected"); // display popup
-                $(this).next(".subs").children().slideDown(0);
-            }
-        }
-    }); 
-
-    $("#nav > li > div > div > ul > li > ul > li > a").click(function () { //mam rad css z internetu
-        $("#nav .selected div div").slideUp(0); // hiding popups
-            $("#nav .selected").removeClass("selected");
-    });
-
-});
-</script>
     <br/>
     <div id="side-whatswrong"></div>
     <div id="side-content"></div>
-    <div id="side-load"></div>
     <div id="side-layer"></div>
     <div id="side-layer2">
+        <div>Dodatečné volby:</div>
        <label><input type="checkbox" id="cycle" onclick="processCheckbox()"/>Zahrnout cyklotrasy</label>
     </div>
-    <div id="side-bottom">
-        Aktuálnost OSM dat: <span id="side-upload-data"></span>
-    </div>
-
 </div>
+
+<script type="text/javascript">
+    jQuery(window).load(function() {
+        $("#nav > li > a").click(function () {
+            if ($(this).parent().hasClass('selected')) {
+                $("#nav .selected div div").slideUp(0); 
+                $("#nav .selected").removeClass("selected");
+            } else {
+                $("#nav .selected div div").slideUp(0);
+                $("#nav .selected").removeClass("selected");
+
+                if ($(this).next(".subs").length) {
+                    $(this).parent().addClass("selected"); 
+                    $(this).next(".subs").children().slideDown(0);
+                }
+            }
+        }); 
+
+        $("#nav > li > div > div > ul > li > ul > li > a").click(function () { 
+            $("#nav .selected div div").slideUp(0);
+                $("#nav .selected").removeClass("selected");
+        });
+    });
+</script>
 
 </body>
 

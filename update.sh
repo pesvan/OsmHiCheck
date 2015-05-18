@@ -73,7 +73,8 @@ if [ "$ret" != "0" ]; then
 	exit 1
 else
 	echo Database updated. [$ret] >> $LOGFILE
-	echo `date -R` > $LASTUPDATE
+	echo `date '+%d.%m.%Y, %X'` > $LASTUPDATE
+	php /var/www/html/xsvana00/tables/php/saveStats.php
 fi
 
 mv $NEXT_DUMP $PRESENT_DUMP

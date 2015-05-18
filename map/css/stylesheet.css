@@ -155,6 +155,17 @@ td:last-child {
     bottom: 0;
 }
 
+#side-bottom img {
+    width: 50px;
+    height: 20px;
+    bottom: -10px;
+}
+
+#side-bottom a {
+    width: 50px;
+    height: 20px;
+    bottom: -10px;
+}
 
 .content {    
     width: 800px;  

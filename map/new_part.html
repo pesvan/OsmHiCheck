@@ -7,20 +7,26 @@
 </script>
 
 <div id="error" class="red center"></div>
-<div class="notice-yellow">Velikost useku je limitovana delkou vykresleneho OSM elementu cesta (way).</div>
 <form method="post" name="addPart" onsubmit="" id="add-note">
-    <div id="notice" class="notice-yellow"></div>
-    <label>Zadejte jméno pro identifikaci:</label>
+    <h3>Vyznačit část cesty s poznámkou</h3>
+    <div class="notice-yellow">Velikost úseku je limitována délkou vykresleného OSM elementu cesta (way).</div>
+    <h4>Uživatelské jméno</h4>
+
     <input id="name" type="text" name="name" placeholder="Jméno" maxlength="50"/>
-    <label><input type="checkbox" id="osm_name"/>Používám toto jméno i na OpenStreetMap.org</label><br />
-    <label>Vyberte nejlepe se hodici k situaci na miste nebo na mape:</label>
+    <label><input type="checkbox" id="osm_name"/>Používám jej i na OpenStreetMap.org</label><br />
+
+    <h4>Typ poznámky a komentář</h4>
+    <label>Vyberte typ nejlépe se hodíci k situaci a zkuste ji blíže popsat v komentáři:</label>
     <select id="select">
-        <option value="0" selected>(Vyberte z nabidky)</option>
-        <option value="1">Vse v poradku</option>
-        <option value="2">Je zde jeden nebo vice problemu (viz. komentar)</option>
-        <option value="3">Chci jen vlozit komentar/fotku</option>
+        <option value="0" selected>(Vyberte z nabídky)</option>
+        <option value="1">Vše v pořádku</option>
+        <option value="2">Je zde jeden nebo více problemu (viz. komentar)</option>
+        <option value="3">Chci jen vložit komentář/fotku</option>
     </select>
-    <textarea name="note" placeholder="Zde vložte svou poznámku" maxlength="1000"></textarea>
+    <textarea name="note" placeholder="Zde vložte svůj komentář" maxlength="1000"></textarea>
+
+    <br />
+    <h4>Aktuálnost poznámky</h4>
     <label>Informace platná k (den/měsíc/rok):</label>
     <input type="text" name="date" maxlength="10"/>
     <br/>

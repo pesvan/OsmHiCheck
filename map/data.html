@@ -1,0 +1,17 @@
+<script type="text/javascript">
+var element = document.getElementById('side-content');  
+if (selectedElement == undefined) {
+            element.innerHTML = "<div class='notice-yellow'>Klikněte na některou trasu nebo bod pro zobrazení dat (Nastavit vrstvy lze na stránce <a onclick='changeSidebarContent(LAYERS)'>Zobrazení</a>)</div>";
+        } else {
+            var link = JOSMLinkBuilder(selected[RELATION].data, selectedElement, selected[selectedElement].data);
+            element.innerHTML = "<a target='_blank' href='" + link + "'>Upravit v JOSM</a>"
+            if (selectedElement == WAY) {
+                element.innerHTML += "<h3>Relace</h3>" + JSONToTable(RELATION);
+                element.innerHTML += "<h3>Cesta</h3>" + JSONToTable(WAY);
+            } else if (selectedElement == NODE) {
+                element.innerHTML += "<br /><a onclick='changeSidebarContent(GUIDEPOST_INFO)'>Vložení informace/kontroly/fotky k uzlu</a>";
+                element.innerHTML += "<h3>Uzel</h3>" + JSONToTable(NODE);
+                getGuideInfo(selected[NODE].id);
+            }
+        }
+</script type="text/javascript">

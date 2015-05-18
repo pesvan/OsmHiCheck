@@ -1,73 +1,32 @@
 <?php
-$query = "SELECT id, hstore_to_json(tags) AS tags FROM relations ORDER BY id";
+if(isset($_GET['specific'])){
+    $specific = $_GET['specific'];
+} else {
+    $specific = null;
+}
+if($specific=='all_missing'){
+    $spec_query = "and (not exist(relations.tags,'network')
+                or not exist(relations.tags,'complete') or not exist(relations.tags,'osmc:symbol')
+                or not exist(relations.tags,'destinations'))";
+} else if($specific=='network'){
+    $spec_query = "and not exist(relations.tags,'network')";
+} else if($specific=='destinations'){
+    $spec_query = "and not exist(relations.tags,'destinations')";
+} else if($specific=='complete'){
+    $spec_query = "and not exist(relations.tags,'complete')";
+} else if($specific=='osmc:symbol'){
+    $spec_query = "and not exist(relations.tags,'osmc:symbol')";
+} else {
+    $filter = $specific;
+} 
+if(!(isset($spec_query))){
+    $spec_query = "";
+}
+if(!(isset($filter))){
+    $filter = "";
+}
+$query = "SELECT id, hstore_to_json(tags) AS tags FROM relations WHERE ".NOT_CYCLO." ".$spec_query." ORDER BY id";
 $result = pg_query($db, $query);
-
-function getCheckedValues($kctKey)
-{
-
-    return array('destinations', 'complete',  'osmc:symbol', $kctKey, 'network','route');
-}
-
-
-function getWrong($errNum, $kctKey)
-{
-    $red = array();
-    if ($errNum >= 128) {
-        $red[] = 'network';
-        $errNum -= 128;
-    }
-    if ($errNum >= 64) {
-        $errNum -= 64;
-    }
-    if ($errNum >= 32) {
-        $errNum -= 32;
-    }
-    if ($errNum >= 16) {
-        $red[] = 'complete';
-        $errNum -= 16;
-    }
-    if ($errNum >= 8) {
-        $errNum -= 8;
-    }
-    if ($errNum >= 4) {
-        $red[] = 'route';
-        $errNum -= 4;
-    }
-    if ($errNum >= 2) {
-        $red[] = 'osmc:symbol';
-        $errNum -= 2;
-    }
-    if ($errNum >= 1) {
-        $red[] = $kctKey;
-    }
-    return $red;
-
-}
-
-function getMissing($tags, $kctKey)
-{
-    $orange = array();
-    $keys = getCheckedValues($kctKey);
-    foreach ($keys as $key) {
-        if (!(array_key_exists($key, $tags))) {
-            $orange[] = $key;
-        }
-
-    }
-    return $orange;
-}
-
-function writeTag($tag, $tags, $kctKey)
-{
-    if (array_key_exists($tag, $tags)) {
-        if (checkValidValue($tag, $tags[$tag], $kctKey)) {
-            return "<td class='wrong'>$tags[$tag]</td>";
-        }
-        return "<td>$tags[$tag]</td>";
-    } else {
-        return "<td class='missing'></td>";
-    }
-}
 
 ?>
 <div class="tables">
@@ -86,6 +45,18 @@ function writeTag($tag, $tags, $kctKey)
                 $kctKey = count($kct) > 0 ? $kct[0] : "";
                 $incorrect = checkTagsValidValues($tags, $kctKey);
                 $red = getWrong($incorrect, $kctKey);
+
+                
+                if( ($filter=='w_network' && !in_array('network', $red)) 
+                || ($filter=='w_complete' && !in_array('complete', $red)) 
+                || ($filter=='w_osmc:symbol' && !in_array('osmc:symbol', $red)) 
+                || ($filter=='route' && !in_array('route', $red)) 
+                || ($filter=='kct' && !in_array($kctKey, $red))){
+                    continue;
+                 }
+                    
+                 
+                
                 $orange = getMissing($tags, $kctKey);
 
                 $checked = getCheckedValues($kctKey);
@@ -96,6 +67,14 @@ function writeTag($tag, $tags, $kctKey)
                         $errorStr .= "network type nekoresponduje s kct hodnotou; ";
                         $red[] = 'network';
                         $red[] = $kctKey;
+                    } else {
+                        if($filter=='err_network'){
+                            continue;
+                        }                        
+                    }
+                } else {
+                    if($filter=='err_network'){
+                            continue;
                     }
                 }
                 if(array_key_exists('osmc:symbol', $tags) && array_key_exists('route', $tags) && array_key_exists($kctKey, $tags)
@@ -105,17 +84,33 @@ function writeTag($tag, $tags, $kctKey)
                         $red[] = 'osmc:symbol';
                         $red[] = $kctKey;
                         $red[] = 'route';
+                    } else {
+                        if($filter=='err_type'){
+                            continue;
+                        }                        
                     }
-                }
+                } else {
+                    if($filter=='err_type'){
+                            continue;
+                    }
+                }                
                 if(array_key_exists('route', $tags) && array_key_exists('osmc:symbol', $tags) && array_key_exists($kctKey, $tags)
                     && !(in_array('osmc:symbol', $red)) && !(in_array($kctKey, $red))){
                     $color = getKctTrackColor($kctKey, $tags['route']);
                     if(checkTagOsmcKctColor($tags['osmc:symbol'], $color)>0){
-                        $errorStr .= "typ cesty v rozporu u osmc:symbol/kct/route; ";
+                        $errorStr .= "barva cesty v rozporu u osmc:symbol/kct; ";
                         $red[] = 'osmc:symbol';
                         $red[] = $kctKey;                        
+                    } else {
+                        if($filter=='err_color'){
+                            continue;
+                        }                        
                     }
-                }
+                } else {
+                    if($filter=='err_color'){
+                            continue;
+                    }
+                } 
 
 
                 $orange = array_diff($orange, $red);

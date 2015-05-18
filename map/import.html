@@ -5,13 +5,14 @@
 </script>
 <div id="error" class="red center"></div>
 <form method="post" name="import" onsubmit="" id="add-note">
-    JSON<br />
-    <label>Vyberte typ importovanych dat:</label>
+    <h3>Hromadný import dat</h3>
+    <div class="notice-yellow">Povolené formáty (prozatím): <b>JSON</b></div>
+    <label>Vyberte typ importovaných dat:</label>
     <select id="select">
-        <option value="0" selected>(Vyberte z nabidky)</option>
-        <option value="1">Uzivatelske poznamky (body)</option>
-        <option value="2">Uzivatelske poznamky (casti tras)</option>
-        <option value="3">Informace k rozcestnikum</option>
+        <option value="0" selected>(Vyberte z nabídky)</option>
+        <option value="1">Uživatelské poznámky (body)</option>
+        <option value="2">Uživatelské poznámky (části tras)</option>
+        <option value="3">Informace k rozcestníkům</option>
     </select>
     <input type="file" id="file-select" name="file"/>
     <br />

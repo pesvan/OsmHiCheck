@@ -1,12 +1,12 @@
 <?php
 ini_set('display_errors', 1);
-ini_set('error_reporting', E_ALL);// Same as error_reporting(E_ALL);
+ini_set('error_reporting', E_ALL);
 require "php/db.php";
 require "php/funcTables.php";
 require "../map/php/func.php";
-// Same as error_reporting(E_ALL);
+include "php/phplot/phplot.php";
 if(!(isset($_GET['pg']))){
-    $page = "main";
+    $page = "stats";
 } else {
     $page = $_GET['pg'];
 }
@@ -31,8 +31,6 @@ if(!(isset($_GET['pg']))){
             <a href="../map/">Prepnout na mapu</a>
 
         </div>
-        <?php $statistics = getCount(); ?>
-        <?php $percentage = getPercentageFromArray($statistics, 'total'); ?>
         <div class="content-inside">
             <?php include "$page.php"; ?>
         </div>

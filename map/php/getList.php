@@ -29,7 +29,12 @@ from relation_members
 inner join ways on relation_members.member_id = ways.id
 inner join relations on relation_members.relation_id = relations.id
 where ways.bbox && ST_MakeEnvelope($left, $bottom, $right, $top)
-and relations.tags->'route'!='bicycle'";
+and relations.tags->'route'!='bicycle' and (
+    not exist(relations.tags,'kct_red') or 
+    not exist(relations.tags,'kct_blue') or 
+    not exist(relations.tags,'kct_yellow') or 
+    not exist(relations.tags,'kct_greeen') or 
+    not exist(relations.tags,'kct_none'))";
     } else {
         $query_string = "SELECT relation_members.relation_id from relation_members
 inner join ways on relation_members.member_id = ways.id
