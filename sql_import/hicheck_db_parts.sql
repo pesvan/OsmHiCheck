@@ -1,3 +1,4 @@
+/** vytvoreni tabulky pro ulozeni uzivatelem vyznacene trasy */
 
 DROP TABLE IF EXISTS hicheck.parts;
 
@@ -13,7 +14,8 @@ CREATE TABLE parts (
   type int,
   osm_name int,
   import_id bigint,
-  date varchar(10)
+  date varchar(10),
+  hidden int default 0
 );
 
 SELECT AddGeometryColumn('parts','geom',4326,'LINESTRING',2);

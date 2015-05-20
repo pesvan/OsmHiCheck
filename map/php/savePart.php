@@ -1,4 +1,6 @@
 <?php
+/** ulozeni casti cesty do databaze */
+
 include 'db.php';
 ini_set('display_errors', 1);
 ini_set('error_reporting', E_ALL);

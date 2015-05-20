@@ -1,9 +1,7 @@
 <?php
+/** ziskani listu relaci na zaklade bounding boxu okna prohlizece */
 require 'db.php';
 require 'func.php';
-// Same as error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('error_reporting', E_ALL);// Same as error_reporting(E_ALL);
 
 if((isset($_GET['bbox'])) && (isset($_GET['type'])) && isset($_GET['bicycle'])){
     $type = $_GET['type'];

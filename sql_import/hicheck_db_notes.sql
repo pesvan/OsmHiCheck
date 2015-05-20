@@ -1,3 +1,4 @@
+/** vytvoreni tabulky pro ulozeni uzivatelske poznamky */
 
 DROP TABLE IF EXISTS hicheck.notes;
 
@@ -15,7 +16,8 @@ CREATE TABLE notes (
   type int,
   osm_name int,
   import_id bigint,
-  date varchar(10)
+  date varchar(10),
+  hidden int default 0
 );
 
 SELECT AddGeometryColumn('notes','geom',4326,'POINT',2);

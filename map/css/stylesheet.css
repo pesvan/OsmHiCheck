@@ -43,7 +43,9 @@ a {
     text-decoration: underline;
 }
 
-
+img {
+    width: 300px;
+}
 body {
   background-color: #fff;
   font-family: 'Open Sans', sans-serif;

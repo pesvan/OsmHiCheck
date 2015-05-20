@@ -1,3 +1,4 @@
+/** vytvoreni tabulky pro ulozeni statistik - zatim vyuzito castecne */
 
 DROP TABLE IF EXISTS hicheck.stats;
 

@@ -1,4 +1,7 @@
-<?php $statistics = getCount(); ?>
+
+<?php
+/** PHP skript pro generovani statistik  */
+$statistics = getCount(); ?>
 <?php $percentage = getPercentageFromArray($statistics, $statistics['total'], true); ?>
 <?php $error_stats = getCountErrors(); ?>
 <?php $error_perc = getPercentageFromArray($error_stats, $statistics['total'], true); ?>
@@ -24,7 +27,6 @@
     <tr><td>typ cesty v rozporu s ostatnimi u tagu osmc:symbol, kct_* nebo route: <td><a href="index.php?pg=table&area=all&specific=err_type"><?php echo $error_stats['err_type']; ?></a><td><?php echo $error_perc['err_type'];?>
     <tr><td>barva cesty v rozporu u osmc:symbol a kct_*: <td><a href="index.php?pg=table&area=all&specific=err_color"><?php echo $error_stats['err_color']; ?></a><td><?php echo $error_perc['err_color'];?>
 </table>
-<?php getCountErrors(); ?>
 </div>
 
 <div class="graphs">

@@ -4,19 +4,15 @@
 
     <title>OsmHiCheck - Mapa</title>
     <meta charset="utf-8"/>
-<link href='http://fonts.googleapis.com/css?family=Open+Sans:300&subset=latin-ext' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300&subset=latin-ext' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="css/leaflet/leaflet.css"/>
     <link rel="stylesheet" type="text/css" href="css/leaflet/Control.OSMGeocoder.css"/>
     <link rel="stylesheet" type="text/css" href="css/leaflet/L.Control.Sidebar.css"/>
     <link rel="stylesheet" type="text/css" href="css/leaflet/L.Control.Zoomslider.css"/>
     <link rel="stylesheet" type="text/css" href="css/stylesheet.css"/>
     <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" />
-    <link rel="stylesheet" type="text/css" href="css/leaflet/MarkerCluster.css" />
-    <link rel="stylesheet" type="text/css" href="css/leaflet/MarkerCluster.Default.css" />
     <link rel="stylesheet" type="text/css" href="css/leaflet/leaflet.awesome-markers.css" />
     <link rel="stylesheet" type="text/css" href="http://code.ionicframework.com/ionicons/1.5.2/css/ionicons.min.css">
-
-   
 
     <script type="text/javascript" src="js/leaflet/leaflet.js"></script>
     <script type="text/javascript" src="js/leaflet/leaflet-hash.js"></script>
@@ -25,9 +21,8 @@
     <script type="text/javascript" src="js/leaflet/leaflet.filelayer.js">//nahravani ext. souboru</script>
     <script type="text/javascript" src="js/leaflet/togeojson.js"></script>
     <script type="text/javascript" src="js/leaflet/L.Control.Sidebar.js">//sidebar</script>
-    <script type="text/javascript" src="js/leaflet/leaflet.markercluster.js">//maker cluster</script>
-    <script type="text/javascript" src="js/leaflet/L.Control.LineStringSelect.js">//sidebar</script>
-    <script type="text/javascript" src="js/leaflet/leaflet.awesome-markers.js">//sidebar</script>
+    <script type="text/javascript" src="js/leaflet/L.Control.LineStringSelect.js"></script>
+    <script type="text/javascript" src="js/leaflet/leaflet.awesome-markers.js"></script>
     <script type="text/javascript" src="js/jquery/jquery-1.11.2.min.js"></script>
     <script type="text/javascript" src="js/OsmHiCheck.js"></script>
 </head>
@@ -51,8 +46,8 @@
                                 <ul>
                                     <li>
                                         <ul>
-                                            <li id="inner"><a onclick="changeSidebarContent(CR_NODE1)">Bod s poznámkou</a></li> 
-                                            <li id="inner"><a onclick="changeSidebarContent(CR_PART1)">Část trasy s poznámkou</a></li>
+                                            <li><a onclick="changeSidebarContent(CR_NODE1)">Bod s poznámkou</a></li>
+                                            <li><a onclick="changeSidebarContent(CR_PART1)">Část trasy s poznámkou</a></li>
                                         </ul>
                                     </li>
                                 </ul>
@@ -71,11 +66,12 @@
     <div id="side-layer"></div>
     <div id="side-layer2">
         <div>Dodatečné volby:</div>
-       <label><input type="checkbox" id="cycle" onclick="processCheckbox()"/>Zahrnout cyklotrasy</label>
+       <label><input type="checkbox" id="cycle" onclick="processCheckbox()"/>Zahrnout cyklotrasy bez kct barvy</label>
     </div>
 </div>
 
 <script type="text/javascript">
+    /* prepinani s rolovanim*/
     jQuery(window).load(function() {
         $("#nav > li > a").click(function () {
             if ($(this).parent().hasClass('selected')) {

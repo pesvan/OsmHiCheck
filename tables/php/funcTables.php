@@ -1,8 +1,12 @@
 <?php
-
+/** soubor s funkcemi, ktere vyuziva tabulkova cast */
 const ALL = 0;
 const WARNING = 1;
 
+
+/**
+ * konstanta, jenz se pridava do sql dotazu - vycleneni cyklisitckych tras bez barvy
+ */
 const NOT_CYCLO = "relations.tags->'route'!='bicycle' and (
     not exist(relations.tags,'kct_red') or 
     not exist(relations.tags,'kct_blue') or 
@@ -10,10 +14,12 @@ const NOT_CYCLO = "relations.tags->'route'!='bicycle' and (
     not exist(relations.tags,'kct_greeen') or 
     not exist(relations.tags,'kct_none'))";
 
-function getCount(){
-    $result = array();
 
-    
+/**
+ * funkce pro ziskani statistik z OSM databaze
+ * @return array|resource
+ */
+function getCount(){
     $query = "SELECT ";
     $query .="(SELECT COUNT(*) FROM relations where ".NOT_CYCLO.") AS total,";
 	$query .="(SELECT COUNT(*) FROM relations where ".NOT_CYCLO." and (not exist(relations.tags,'network')
@@ -29,6 +35,10 @@ function getCount(){
     return $res;
 }
 
+/**
+ * funkce pro spocitani konkretnich chyb v relacich
+ * @return array
+ */
 function getCountErrors(){
     $ret = array();
     $ret['count'] = 0;
@@ -42,13 +52,11 @@ function getCountErrors(){
     $ret['err_network'] = 0;
     $query = "SELECT hstore_to_json(tags) as tags FROM relations where ".NOT_CYCLO;
     $result = pg_query($query);
-    $isWrong = false;
     while ($row = pg_fetch_assoc($result)){
         $isWrong = false;
         $tags = json_decode($row['tags'], true);
         $kct = getKctTag($tags);
         $kctKey = count($kct) > 0 ? $kct[0] : "";
-        $checked = getCheckedValues($kctKey);
         $incorrect = checkTagsValidValues($tags, $kctKey);
         $incorrect = getWrong($incorrect, $kctKey);
         foreach ($incorrect as $key => $value) {
@@ -100,6 +108,10 @@ function getCountErrors(){
     return $ret;
 }
 
+/**
+ * funkce, ktera ziska statistiky ktere se pravidelne zadavaji do databaze pro vykresleni grafu
+ * @return array
+ */
 function getStatsForGraphs(){
     $result = pg_query("SELECT date, relations_missing, relations_wrong FROM hicheck.stats ORDER BY date DESC LIMIT 31");
     $ret = array();
@@ -113,6 +125,11 @@ function getStatsForGraphs(){
     return $ret;
 }
 
+/**
+ * funkce pripravi datum pro graf, take doplni chybejici dny
+ * @param $data
+ * @return array
+ */
 function prepareGraphs($data){
     $cnt = count($data);
     if($cnt<31){
@@ -127,6 +144,13 @@ function prepareGraphs($data){
     return array_reverse($data);
 }
 
+/**
+ * funkce pro ziskani procentualni hodnoty
+ * @param $arr
+ * @param $total
+ * @param $percent
+ * @return array
+ */
 function getPercentageFromArray($arr, $total, $percent){
     $res = array();
     foreach ($arr as $i => $value) {
@@ -143,17 +167,31 @@ function getPercentageFromArray($arr, $total, $percent){
     return $res;
 }
 
+/**
+ * @param $total
+ * @param $part
+ * @return float
+ */
 function getPercent($total, $part){
     return $total!=0 ? round((100/$total)*$part, 2) : 0.00;
 }
 
+/**
+ * @param $kctKey
+ * @return array
+ */
 function getCheckedValues($kctKey)
 {
-
     return array('destinations', 'complete',  'osmc:symbol', $kctKey, 'network','route');
 }
 
 
+/**
+ * zjisteni chyb relace
+ * @param $errNum
+ * @param $kctKey
+ * @return array
+ */
 function getWrong($errNum, $kctKey)
 {
     $red = array();
@@ -189,6 +227,12 @@ function getWrong($errNum, $kctKey)
 
 }
 
+/**
+ * zjisteni chybejicich hodnot v relaci
+ * @param $tags
+ * @param $kctKey
+ * @return array
+ */
 function getMissing($tags, $kctKey)
 {
     $orange = array();
@@ -202,6 +246,13 @@ function getMissing($tags, $kctKey)
     return $orange;
 }
 
+/**
+ * pomocna funkce pro zapsani tagu jako td element
+ * @param $tag
+ * @param $tags
+ * @param $kctKey
+ * @return string
+ */
 function writeTag($tag, $tags, $kctKey)
 {
     if (array_key_exists($tag, $tags)) {

@@ -1,4 +1,5 @@
 <?php
+/** ziskani vsech dat k dane relaci/ceste/uzlu */
 include 'db.php';
 // Same as error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -14,13 +15,17 @@ if (isset($_GET['data']) && isset($_GET['type'])) {
 		send($ajxres);
 }
 
+const RELATION = 0;
+const WAY = 1;
+const NODE = 2;
+
 $query_string = "SELECT id, version, user_id, tstamp, changeset_id, hstore_to_json(tags) as tags from ";
 
-if($type==0){
+if($type==RELATION){
 	$query_string.="relations ";
-}else if($type==1) {
+}else if($type==WAY) {
 	$query_string.="ways ";
-}else if($type==2) {
+}else if($type==NODE) {
 	$query_string.="nodes ";
 } else {
 	$ajxres=array();

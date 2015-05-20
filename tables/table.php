@@ -1,4 +1,5 @@
 <?php
+/** PHP skript pro generovani tabulkove reprezentace relaci */
 if(isset($_GET['specific'])){
     $specific = $_GET['specific'];
 } else {
@@ -46,7 +47,7 @@ $result = pg_query($db, $query);
                 $incorrect = checkTagsValidValues($tags, $kctKey);
                 $red = getWrong($incorrect, $kctKey);
 
-                
+                    /* filtrovani */
                 if( ($filter=='w_network' && !in_array('network', $red)) 
                 || ($filter=='w_complete' && !in_array('complete', $red)) 
                 || ($filter=='w_osmc:symbol' && !in_array('osmc:symbol', $red)) 
@@ -55,7 +56,7 @@ $result = pg_query($db, $query);
                     continue;
                  }
                     
-                 
+                 /* vyhledavani chyb */
                 
                 $orange = getMissing($tags, $kctKey);
 
@@ -110,15 +111,14 @@ $result = pg_query($db, $query);
                     if($filter=='err_color'){
                             continue;
                     }
-                } 
-
-
+                }
                 $orange = array_diff($orange, $red);
                 ?>
 
         <tr>
             <td><?php echo $row['id']; ?></td>
             <?php
+            /* vyber spravneho stylu na zaklade spravnosti prvku */
             $rid = $row['id'];
                 foreach($checked as $key){
                     if(array_key_exists($key, $tags) && $key==$kctKey){

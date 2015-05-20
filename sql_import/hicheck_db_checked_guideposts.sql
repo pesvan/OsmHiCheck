@@ -1,4 +1,4 @@
-
+/** vytvoreni tabulky pro ulozeni informace k rozcestniku */
 DROP TABLE IF EXISTS hicheck.checked_guideposts;
 
 DROP TABLE IF EXISTS checked_guideposts;
@@ -15,7 +15,8 @@ CREATE TABLE checked_guideposts (
   image text,
   osm_name int,
   import_id bigint,
-  date varchar(10)
+  date varchar(10),
+  hidden int default 0
 );
 
 ALTER TABLE ONLY checked_guideposts ADD CONSTRAINT pk_checked_guideposts PRIMARY KEY  (id);

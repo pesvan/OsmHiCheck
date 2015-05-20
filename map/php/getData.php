@@ -1,11 +1,15 @@
 <?php
-
+/** skript stahujee geograficka data ke konkretni relaci, prohihaji zde take kontroly a optimalizace */
 ini_set('display_errors', 1);
-ini_set('error_reporting', E_ALL);// Same as error_reporting(E_ALL);
+ini_set('error_reporting', E_ALL);
 require 'db.php';
 require 'func.php';
-// Same as error_reporting(E_ALL);
 
+const BASE = 0;
+const ERRORS = 2;
+const WARNINGS = 1;
+const GUIDEPOSTS = 3;
+const ALL_WAYS_ = 5;
 
 if((isset($_GET['rid'])) && (isset($_GET['control'])) && (isset($_GET['zoom']))){
     $id = $_GET['rid'];
@@ -16,13 +20,13 @@ if((isset($_GET['rid'])) && (isset($_GET['control'])) && (isset($_GET['zoom'])))
     $ajxres=array();
     $ajxres['resp']=4;
     $ajxres['dberror']=0;
-    $ajxres['msg']='missing bounding box or type of data';
+    $ajxres['msg']='missing bounding box, type of control or type of data';
     send($ajxres);
 }
 
 
  //zakladni query string pro cesty
-if($controlLevel<=2){
+if($controlLevel<=ERRORS){
     $query_string = "SELECT relations.id as rid,
     hstore_to_json(relations.tags) as tags, ways.id as mid, ST_AsGeoJSON(linestring)
     from relations
@@ -30,24 +34,24 @@ if($controlLevel<=2){
     inner join ways on relation_members.member_id = ways.id
     where relations.id = '$id'";
 
-    if($controlLevel==1){ //warnings
+    if($controlLevel==WARNINGS){ //warnings
         $query_string .= " and (not exist(relations.tags,'network')";
         $query_string .= " or not exist(relations.tags,'complete')";
         $query_string .= " or not exist(relations.tags,'osmc:symbol')";
         $query_string .= " or not exist(relations.tags,'destinations'))";
         //$query_string .= " or not exist(relations.tags,'abandoned'))";
     }
-    if($controlLevel==2){ //error
+    if($controlLevel==ERRORS){ //error
         $query_string .= " and exist(relations.tags,'osmc:symbol')";
     }
-} else if($controlLevel==3){ //rozcestniky
+} else if($controlLevel==GUIDEPOSTS){ //rozcestniky
     $query_string = "SELECT relation_members.relation_id as rid, nodes.id as mid, relation_members.member_type as type, ST_AsGeoJSON(nodes.geom) from relation_members inner join nodes on relation_members.member_id = nodes.id where relation_members.relation_id = '$id'";
-} else if($controlLevel==5){ //vsechny cesty
+} else if($controlLevel==ALL_WAYS_){ //vsechny cesty
     $query_string = "SELECT id, ST_AsGeoJSON(linestring) FROM ways WHERE id='$id'";
 }
 $data = pg_query($db, $query_string);
 $info = array();
-if($controlLevel==5){
+if($controlLevel==ALL_WAYS_){
     $row = pg_fetch_assoc($data);
     $geom = json_decode($row['st_asgeojson']);
     $aux = array();
@@ -66,7 +70,7 @@ if($controlLevel==5){
     $firstIteration = true;
     while($row = pg_fetch_assoc($data)) {
         if($firstIteration){
-            if($controlLevel!=3){
+            if($controlLevel!=GUIDEPOSTS){
                 $tags = json_decode($row['tags'], true);
                 $kct = getKctTag($tags);
                 $kctKey = count($kct) > 0 ? $kct[0] : null;
@@ -76,11 +80,11 @@ if($controlLevel==5){
 
             $errorValue = 0;
             $incorrectValues = 0;
-            if ($controlLevel <= 2) { //ziskani kct barvy
+            if ($controlLevel <= ERRORS) { //ziskani kct barvy
                 $color = getKctTrackColor($kctKey, $tags['route']);
             }
 
-            if($controlLevel==2 && $kctKey!=null){
+            if($controlLevel==ERRORS && $kctKey!=null){
 
 
 
@@ -101,12 +105,11 @@ if($controlLevel==5){
                 if(array_key_exists('osmc:symbol', $tags)){
                     $errorValue += checkTagOsmcKctColor($tags['osmc:symbol'], $color)*4;
                 }
-                //echo "$errorValue, $incorrectValues";
                 //nepokracuje se dal, nenalezena chyba
                 if($errorValue==0){
                     exit();
                 }
-            } else if($controlLevel==2 && $kctKey==null){
+            } else if($controlLevel==ERRORS && $kctKey==null){
                 $errorValue = 128;
             }
         }
@@ -117,16 +120,16 @@ if($controlLevel==5){
         $prop['errValue']=$errorValue;
         $prop['incValue']=$incorrectValues;
         $prop['kctkey']=$kctKey;
-        if($controlLevel<=2){
+        if($controlLevel<=ERRORS){
             $prop['color'] = $color;
             $aux['int_type']=1;
         } 	else {
             $aux['int_type']=2;
         }
         $geom = json_decode($row['st_asgeojson']);
-        if($controlLevel!=3 && $zoomLevel>=NODES_WAYS_EDGE){
-            $geom->coordinates = efficientFilter($geom->coordinates, $row['mid'], $zoom);
-        } else if($zoomLevel<12 && $controlLevel!=3){ //redukce relace na jeden bod
+        if($controlLevel!=GUIDEPOSTS && $zoomLevel>=NODES_WAYS_EDGE){
+            $geom->coordinates = efficientFilter($geom->coordinates, $zoom);
+        } else if($zoomLevel<NODES_WAYS_EDGE && $controlLevel!=GUIDEPOSTS){ //redukce relace na jeden bod
             $geom->coordinates = $geom->coordinates[0];
             $geom->type = "Point";
         }
@@ -136,7 +139,7 @@ if($controlLevel==5){
         $aux['properties']=$prop;
         $aux['geometry']=$geom;
         $info[] = $aux;
-        if($zoomLevel<NODES_WAYS_EDGE && $controlLevel!=3){ //redukce relace na jeden bod
+        if($zoomLevel<NODES_WAYS_EDGE && $controlLevel!=GUIDEPOSTS){ //redukce relace na jeden bod, v iteraci se nepokracuje
             break;
         }
     }

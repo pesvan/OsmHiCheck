@@ -23,6 +23,9 @@ function getNetworkValueList(){
     return array(array("lwn", "rwn", "nwn"), array("lcn", "rcn", "ncn"));
 }
 
+/**
+ * @return array
+ */
 function getKctKeyList(){
     return array("kct_blue", "kct_green", "kct_red", "kct_white", "kct_yellow", "kct_none", "kct_black", "kct_purple", "kct_orange");
 }
@@ -124,9 +127,6 @@ function getKctOsmcTable(){
     );
 }
 
-
-
-
 /** funkce pro zajisteni automaticke kontroly - kontrola validity hodnot */
 
 /**
@@ -162,10 +162,19 @@ function checkTagsValidValues($tags, $kctKey){
     return $errNum;
 }
 
+/**
+ * @param $network
+ * @return int
+ */
 function checkTagNetwork($network){
     $netList = getNetworkValueList();
     return in_array($network, $netList[0]) || in_array($network, $netList[1]) ? 0 : 1;
 }
+
+/**
+ * @param $kct
+ * @return int
+ */
 function checkKeyKct($kct){
     return in_array($kct, getKctKeyList()) ? 0 : 1;
 }
@@ -243,6 +252,12 @@ function checkTagNetworkKct($network, $kct){
     }
 }
 
+/**
+ * @param $osmc
+ * @param $kct
+ * @param $route
+ * @return int
+ */
 function checkTagOsmcKctRoute($osmc, $kct, $route){
     $osmc = parseOsmc($osmc);
     $route_kct = getRouteKctTable();
@@ -260,12 +275,21 @@ function checkTagOsmcKctRoute($osmc, $kct, $route){
     return 0;
 }
 
+/**
+ * @param $osmc
+ * @param $kctColor
+ * @return int
+ */
 function checkTagOsmcKctColor($osmc, $kctColor){
     $osmcColor = getOsmcTrackColor($osmc);
     return $osmcColor==$kctColor ? 0 : 1;
 }
 
 
+/**
+ * @param $osmc
+ * @return array|null
+ */
 function parseOsmc($osmc){
     $parts = explode(":",$osmc);
     if(count($parts)!=3){
@@ -290,10 +314,6 @@ function getKctTag($tags){
     return $kct_;
 }
 
-
-
-
-//funkce pro zjisteni shody tagu kct_barva a osmc:barva
 /**
  * @param $osmc_color
  * @param $kct_color
@@ -303,9 +323,9 @@ function kctColorVsOsmcColor($osmc_color, $kct_color){
 	return $osmc_color == $kct_color ? true : false;
 }
 
-//funkce pro zjisteni barvy z tagu kct_barva
 /**
- * @param $row
+ * @param $kctKey
+ * @param $route
  * @return int
  */
 function getKctTrackColor($kctKey, $route){
@@ -324,9 +344,8 @@ function getKctTrackColor($kctKey, $route){
 	}
 	return $color;
 }
-
-//funkce pro zjisteni barvy z tagu osmc:symbol
 /**
+ * funkce pro zjisteni barvy z tagu osmc:symbol
  * @param $osmc
  * @return int
  */
@@ -353,48 +372,21 @@ function getOsmcTrackColor($osmc){
 	return $ret;
 	
 }
-/** momentalne nepouzivano */
-function getOsmcBackgroundColor($osmc){
-	$pieces = explode(":", $osmc);
-	return $pieces[1];
-}
 
 /**funkce pro pripravu dat na odeslani*/
-
 function prepareData($data){
     $aux = json_encode($data);
     $aux = "".$aux."";
     return $aux;
 }
 /** funkce pro filtrovani uzlu na zaklade zoomu */
-
-
-//jednoduchy filtr pro uzly
 /**
+ * slozitejsi filtr na zaklade vypoctu smeru vektoru
  * @param $nodes
- * @return array
- */
-function filterNodes($nodes){
-    $cnt = count($nodes);
-    $filtered = array();
-    $filtered[] = $nodes[0];
-    for ($i = 1; $i < $cnt-1; $i++){
-        if($i%2==0){
-            $filtered[] = $nodes[$i];
-        }
-    }
-    $filtered[] = $nodes[$cnt-1];
-    return $filtered;
-}
-
-//slozitejsi filtr na zaklade vypoctu smeru vektoru
-/**
- * @param $nodes
- * @param $id
  * @param $filter
  * @return array
  */
-function efficientFilter($nodes, $id, $filter){
+function efficientFilter($nodes, $filter){
     $cnt = count($nodes);
     $filtered = array();
     $filtered[] = $nodes[0];
@@ -416,40 +408,21 @@ function efficientFilter($nodes, $id, $filter){
     return $filtered;
 }
 
-//funkce pro prispusobeni filtru na zaklade zoomu
 /**
+ * funkce pro prispusobeni filtru na zaklade zoomu
  * @param $zoom
  * @return float|int
  */
 function getFilterFromZoom($zoom){
     if($zoom >= 16){
         return 0;
-    } else if($zoom <16 && $zoom >= 14) {
+    } else if($zoom <16 && $zoom >= 15) {
         return 0.00005;
-    } else if($zoom <14 && $zoom >= 12) {
+    } else if($zoom <15 && $zoom >= 13) {
         return 0.0001;
-    } else if($zoom == 11) {
-        return 0.008;
-    } else if($zoom == 11) {
-        return 0.001;
-    } else if($zoom == 10) {
-        return 0.005;
-    } else if($zoom == 9){
+    } else if($zoom == 12) {
         return 0.008;
     } else return 1;
-}
-/** momentalne nepouzivano */
-//zjisteni prostredniho bodu cesty
-/**
- * @param $start
- * @param $end
- * @return array
- */
-function getCenterPoint($start, $end){
-    $center = array();
-    $center[0] = ($start[0] + $end[0])/2;
-    $center[1] = ($start[1] + $end[1])/2;
-    return $center;
 }
 
 //vypocitani vektoru dvou bodu
@@ -465,30 +438,7 @@ function getVector($start, $end){
     return $vector;
 }
 
-//vypocitani vzdalenosti pomoci z vektoru
-/**
- * @param $vec
- * @return float
- */
-function getDistanceFromVector($vec){
-    return sqrt(($vec[0]*$vec[0])+($vec[1]*$vec[1]));
-}
-
-//vypocet vzdalenosti z bodu
-/**
- * @param $start
- * @param $end
- * @return float|int
- */
-function getDistanceFromPoints($start, $end){
-    if($start[0]==$end[0] && $start[1]==$end[1]){
-        return 0;
-    } else {
-        return getDistanceFromVector(getVector($start, $end));
-    }
-}
-
-//serazeni cest do jedne relace - pravdepodobne nebude pouzito
+//serazeni cest do jedne relace - mozne vylepseni efektivity zobrazeni do budoucna
 /**
  * @param $firstAndLast
  * @param $coordinates
@@ -551,7 +501,6 @@ function getOrderAndReversedList($firstAndLast){
     return $return;
 }
 
-//...
 /**
  * @param $a
  * @param $b

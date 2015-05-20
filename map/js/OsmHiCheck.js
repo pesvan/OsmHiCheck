@@ -1,10 +1,9 @@
-
-
-var NODES_WAYS_EDGE = 12;
-
+/** globalni promenne */
 
 var map;
 
+//hranicni hodnota zoomu pro rozmezi mezi zobrazenim relace jako linie a jako relace
+var NODES_WAYS_EDGE = 12;
 //promenna pro manipulaci s prvkem - ovladani vrstev
 var controlLayersHandler;
 //manipulace s postrannim panelem
@@ -37,10 +36,11 @@ for (i = 0; i < layerNames.length; i++){
 // stavove promenne pro vrstvy
 var cycleRelationsAreOn = false;
 
-//pomocna promenna pro zamezeni opakovemu nahravani ve stejny moment
+//pomocne promenne pro zamezeni opakovemu nahravani ve stejny moment
 var canGetData = true;
 var canGetData2 = true;
 
+//ulozeni typu vybraneho elementu
 var selectedElement;
 
 /** imitace enum - konstanty pro lepsi orientaci */
@@ -64,15 +64,15 @@ var DATA = 0;
 var LAYERS = 1;
 var CR_NODE1 = 2;
 var CR_NODE2 = 3;
-var NODE_LIST = 4;
 var CR_PART1 = 5;
 var CR_PART2 = 6;
 var GUIDEPOST_INFO = 7;
 var IMPORT = 8;
 
-
+//stavova promenna pro vytvoreni uzivatelskeho bodu
 var CREATE_NODE = false;
 
+//zpravy uzivateli
 var msgCreateNodeBefore = "Pro vytvoření bodu s poznámkou klikněte na požadovanou lokaci na mapě.";
 var msgError = "Nevyplněno vše";
 var msgErrorCoords = "Špatný formát souřadnic";
@@ -82,19 +82,18 @@ var msgErrorFile = "Nevybrán žádný soubor";
 var msgErrorFileType = "Soubor není povoleného typu";
 var msgErrorSelect = "Nebyl vybrán žádný typ";
 var msgErrorImage = "Špatný formát jednoho nebo více obrázků";
-var msgUserClickedOnRelation = "Bylo kliknuto na trasu nebo na prvek, poznámka bude obsahovat referenci na tyto prvky.";
 var msgCreateLineBefore = "Pro vyznačení části trasy klikněte na požadovaný úsek. Při úrovni zoomu 15 a blíže (tzn. měřítko vlevo dole ukazuje 300 m a méně) se zobrazí také ostatní cesty, které nejsou součástí turistických relací (way:highway=)";
 
+//vytvoreni bodu - pomocne promenne
 var lngLatFromClick = null;
 var dataFromClick = false;
 //pomocny marker
 var temporaryMarker = null;
-
-var selectedWayToControl;
-
-var sidebarContent = null;
 var tempIcon;
-
+// promenna pro manipulaci s usekem cesty
+var selectedWayToControl;
+// ulozeni soucasneho stavu sidebaru
+var sidebarContent = null;
 
 //vypnuti cachovani AJAXU
 $.ajaxSetup({    
@@ -102,14 +101,13 @@ $.ajaxSetup({
 });
 
 function initMap() {
-
     document.getElementById('cycle').checked = false;
     /** mapa **/
     map = new L.Map('mymap', {
         zoomControl: false
     });
     map.user = "";
-    /** podklady **/
+    /** podklad **/
     var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     var osmAttrib = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
     var osm = new L.TileLayer(osmUrl, {
@@ -117,11 +115,7 @@ function initMap() {
         maxZoom: 19,
         attribution: osmAttrib
     });
-    var none = new L.TileLayer(null, {
-        minZoom: 1,
-        maxZoom: 19,
-        attribution: osmAttrib
-    });
+
 
     map.setView(new L.LatLng(48.952, 16.734), 13);
     map.addLayer(osm);
@@ -295,9 +289,13 @@ function initMap() {
     layers[USERNOTES].layer = L.geoJson(null, {
         id: USERNOTES,
         pointToLayer: function (feature, latlng) {
+            var image = "";
             var osmLink = ""; //vytvoreni odkazu na OSM, pokud to uzivatel potvrdil pri vytvoreni
             if(feature.properties.osm==1){
                 osmLink += "<a target='_blank' href='http://www.openstreetmap.org/user/"+feature.properties.user+"'>(OSM uživatel)</a>";
+            }
+            if(feature.properties.image.length>0){
+                image += "<a href='../uploads/"+feature.properties.image+"' target='_blank'><img src='../uploads/"+feature.properties.image+"'/></a><br />";
             }
             return L.marker(latlng, {
                 icon: layers[USERNOTES].icon
@@ -307,6 +305,7 @@ function initMap() {
                 "poznámka: " + feature.properties.note + "<br/>" +
                 "aktuálnost poznámky:" + feature.properties.date + "<br/>" +
                 "čas vložení: " + feature.properties.timestamp + "<br/>" +
+                 image +
                 "uživatel: " + feature.properties.user + " " + osmLink +"<br/>" +
                 "<a onclick='deleteUserContent(CR_NODE1,"+ feature.properties.id+")'>Odstranit poznámku</a><br/>"
             );
@@ -365,12 +364,18 @@ function initMap() {
     map.on('click', onClickElsewhere);
     map.on('zoomend', mapZoomed);
 
+    /** zobrazeni udaje o aktualnosti a odkazu na github v attribution*/
     jQuery.get("../last_update.txt", function (data) {
         var x= document.getElementsByClassName('leaflet-control-attribution');
         x[0].innerHTML = "<a href='https://github.com/pesvan/OsmHiCheck'>Github</a> | OSM data updated: "+data+" <br /> "+x[0].innerHTML;
     });
 }
 
+/**
+ * funkce zajistujici vytvoreni docasneho uzlu
+ * @param e
+ * @param bind
+ */
 function createNode(e, bind) {
     if (CREATE_NODE) {
         lngLatFromClick = e.latlng;
@@ -384,6 +389,11 @@ function createNode(e, bind) {
     }
 }
 
+/** *
+ * nastaveni reakce na kliknuti na prvek
+ * @param feature
+ * @param layer
+ */
 function onEachFeature(feature, layer) {
     setTimeout(function () {
         setSidebarLoading(false);
@@ -391,6 +401,11 @@ function onEachFeature(feature, layer) {
     layer.on('click', onClick);
 }
 
+/**
+ * nastaveni reakce na kliknuti na uzivatelem vyznaceny usek cesty
+ * @param feature
+ * @param layer
+ */
 function onEachFeatureUserPart(feature, layer){
     var osmLink = "";
     if(feature.properties.osm==1){
@@ -408,6 +423,10 @@ function onEachFeatureUserPart(feature, layer){
     );
 }
 
+/**
+ * interakce uzivatele po kliknuti na prvek v mape
+ * @param e
+ */
 function onClick(e) {
     if (CREATE_NODE) {
         createNode(e, true);
@@ -417,7 +436,7 @@ function onClick(e) {
             feature: e.target.feature
         });
         changeSidebarContent(CR_PART2);
-    } else {
+    } else { //ulozeni informaci o kliknutem prvku
         selected[RELATION].id= e.target.feature.relation_id;
         selected[RELATION].errorNumber = e.target.feature.properties.errValue;
         selected[RELATION].incorrectNumber = e.target.feature.properties.incValue;
@@ -437,10 +456,18 @@ function onClick(e) {
     }
 }
 
+/**
+ * @param e
+ */
 function onClickElsewhere(e) {
     createNode(e, false);
 }
 
+
+/**
+ * zapnuti dane vrstvy po pridani do mapy
+ * @param e
+ */
 function onOverlayAdd(e) {
     //fix, aby se funkce nevolala 2x po sobe
     if (!canGetData) {
@@ -455,7 +482,7 @@ function onOverlayAdd(e) {
 }
 
 /**
- *
+ *  vycisteni dat a vypnuti dane vrstvy pri odebrani
  * @param e
  */
 function onOverlayRemove(e) {
@@ -464,7 +491,7 @@ function onOverlayRemove(e) {
     layers[id].list = [];
     layers[id].drawn = [];
     layers[id].layer.clearLayers();
-    if(map.getZoom()<NODES_WAYS_EDGE){
+    if(map.getZoom()<NODES_WAYS_EDGE){// fix pro spravne zobrazovani
         if((id==WARNINGS || id==ERRORS) && layers[TRACKS].isOn){
             resetLayer(TRACKS);
             getData();
@@ -475,7 +502,9 @@ function onOverlayRemove(e) {
         }
     }
 }
-
+/**
+ * pri pohybu mapou je treba zjistit nova data
+ */
 function mapMoved() {
     getData();
 }
@@ -600,14 +629,12 @@ function processListDataOSM(data) {
     } else {
         setSidebarLoading(false);
     }
-
-    
-
-    
-
-
 }
 
+/**
+ * zvlastni processing vsech cest, kvuli jinemu charakteru se zpracovava v samostatne funkci
+ * @param data
+ */
 function processListDataAllWays(data){
     var toDraw = filterNewWays(data);
     deleteUnusedGeoJSONRelations($(layers[ALLWAYS].layer).not(data).get(), layers[ALLWAYS].layer);
@@ -703,7 +730,6 @@ function deleteUnusedGeoJSONRelations(data, layer) {
             var obj = layer._layers[object];
             for (var relation in data) {
                 if (obj.feature.relation_id == relation) {
-                    //delete touristRelationsLayer._layers[object];
                     layer.removeLayer(obj);
                 }
             }
@@ -780,6 +806,10 @@ function getWaysToDraw(rid, controlType) {
     })
 }
 
+/**
+ * ziskani uzivatelskych inforaci o rozcestniku
+ * @param nid
+ */
 function getGuideInfo(nid) {
     if (!canGetData2) {
         return;
@@ -791,61 +821,82 @@ function getGuideInfo(nid) {
         data: 'nid=' + nid,
         success: function(data){
             printGuideInfo(data);
-            setTimeout(function () {
+            setTimeout(function () { //opet fix pro synchronizaci
                 canGetData2 = true;
             }, 500);
         }
     });
 }
 
+/**
+ * vypis uzivatelskych inforaci o rozcestniku na strance prislusneho rozcestniku
+ * @param data
+ */
 function printGuideInfo(data){
     if(sidebarContent==DATA){
-        var load = document.getElementById('side-load');
+        var layer = document.getElementById('side-layer');
         for(var info in data){
             if(data.hasOwnProperty(info)){
                 var osmLink = "";
                 if(data[info].osm_name==1){
                     osmLink += "<a target='_blank' href='http://www.openstreetmap.org/user/"+data[info].hi_user_id+"'>(OSM uživatel)</a>";
                 }
-                load.innerHTML += "Uživatel: "+data[info].hi_user_id + " " + osmLink + "<br />";
-                load.innerHTML += "Typ: "+resolveSelectType(data[info].type)+"</span><br />";
-                load.innerHTML += "Komentář: "+data[info].note+"<br />";
-                load.innerHTML += "Platné k datu: "+data[info].date+"<br />";
-                load.innerHTML += "<a onclick='deleteUserContent(GUIDEPOST_INFO,"+data[info].id+")'>(Odstranit)</a>";
-                load.innerHTML += "<br />";
+                layer.innerHTML += "Uživatel: "+data[info].hi_user_id + " " + osmLink + "<br />";
+                layer.innerHTML += "Typ: "+resolveSelectType(data[info].type)+"</span><br />";
+                layer.innerHTML += "Komentář: "+data[info].note+"<br />";
+                layer.innerHTML += "Platné k datu: "+data[info].date+"<br />";
+                if(data[info].image!='null' && data[info].image!=null){
+                    layer.innerHTML += "<a href='../uploads/"+data[info].image+"' target='_blank'><img src='../uploads/"+data[info].image+"'/></a><br />";
+                }
+                layer.innerHTML += "<a onclick='deleteUserContent(GUIDEPOST_INFO,"+data[info].id+")'>(Odstranit)</a>";
+                layer.innerHTML += "<br />";
+                layer.innerHTML += "<br />";
             }
         }
     }
 }
 
+/**
+ * zneviditelneni uzivatelskeho vstupu, je treba zadat jmeno a heslo superuzivatele
+ * @param type
+ * @param id
+ */
 function deleteUserContent(type, id){
-    var r = confirm("Opravdu chcete tento uživatelský příspevěk smazat?");
-    if(r){
-        $.ajax({
-            url: 'php/deleteUserContent.php',
-            dataType: 'json',
-            data: 'uid='+ id + '&type='+type,
-            complete: function(){
-                if(type==GUIDEPOST_INFO){
-                    changeSidebarContent(DATA);
-                } else if(type==CR_NODE1){
-                    resetLayer(USERNOTES);
-                    getData();
-                } else if(type==CR_PART1){
-                    resetLayer(USERPARTS);
-                    getData();
-                }
-
+    var user = prompt("Zadejte prosím jméno super-uživatele");
+    var hash = prompt("Zadejte heslo");
+    $.post('php/deleteUserContent.php',
+        {
+        uid: id,
+        type: type,
+        user: user,
+            hash: hash
+    },function(data){
+            if(type==GUIDEPOST_INFO){
+                changeSidebarContent(DATA);
+            } else if(type==CR_NODE1){
+                resetLayer(USERNOTES);
+                getData();
+            } else if(type==CR_PART1){
+                resetLayer(USERPARTS);
+                getData();
             }
-        })
-    }
+    });
 }
 
+/**
+ * pomocna funkce pro reset vrstvy
+ * @param layer
+ */
 function resetLayer(layer){
     layers[layer].layer.clearLayers();
     layers[layer].list = [];
 }
 
+/**
+ * prislusne zabarveni uzivatelske poznamky
+ * @param type
+ * @returns {string}
+ */
 function resolveSelectType(type){
     if(type==1){
         return "<span class='green'>OK</span>";
@@ -928,6 +979,11 @@ function JSONToTable(data) {
     return table;
 }
 
+/**
+ *
+ * @param incorrect
+ * @param errNum
+ */
 function setWrongMessage(incorrect, errNum){
     var element = document.getElementById('side-whatswrong');
     element.innerHTML = "";
@@ -989,6 +1045,13 @@ function getMissingTags(tags) {
     return missing;
 }
 
+/**
+ * Ziskani spatnych hodnot tagu
+ * @param tags
+ * @param kctKey
+ * @param number
+ * @returns {Array}
+ */
 function getIncorrectTags(tags, kctKey, number){
     var incorrect = [];
     if(number>=128){
@@ -1042,6 +1105,13 @@ function getIncorrectTags(tags, kctKey, number){
     return incorrect;
 }
 
+/**
+ * ziskani rozporu ve znackach
+ * @param tags
+ * @param kctKey
+ * @param number
+ * @returns {Array}
+ */
 function getErrorTags(tags, kctKey, number){
     var error = [];
     if(number>=4){
@@ -1205,13 +1275,10 @@ function changeSidebarContent(content) {
             $('#side-content').load("import.html");
         })
     }
-
-
-    
 }
 
 /**
- * Vytvoreni linku pro otevreni dane casti v JOSM
+ * Vytvoreni odkazu pro otevreni dane casti v JOSM
  * @param relation
  * @param type
  * @param element
@@ -1232,15 +1299,6 @@ function JOSMLinkBuilder(relation, type, element) {
 }
 
 /**
- *
- * @param data
- * @param element
- */
-function printUserNodes(data, element) {
-    element.innerHTML += JSON.stringify(data);
-}
-
-/**
  * Funkce pro ovladani checkboxu pro zahrnuti cyklotras
  */
 function processCheckbox() {
@@ -1251,54 +1309,61 @@ function processCheckbox() {
     getData();
 }
 
+/**
+ * priprava formulare pro vlozeni uzivatelskeho bodu
+ */
 function prepareForm() {
     var element = document.forms["addNote"];
     element['lat'].value = lngLatFromClick.lat;
     element['lng'].value = lngLatFromClick.lng;
-    var div = document.getElementById('notice');
-  /*  if (dataFromClick) { //featura, ktera nestihla deadline BP
-        div.innerHTML = msgUserClickedOnRelation;
-    } else {
-        div.innerHTML = "";
-    }*/
     if (map.user!=""){
         element['name'].value = map.user;
     }
     prepareDate(document.forms["addNote"]);
 }
 
+/**
+ * predpripraveni aktualniho data
+ * @param element
+ */
 function prepareDate(element){
     var date = new Date();
     element['date'].value = date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear();
 
 }
 
-function saveNote() {
-    if (validateFormNote()) {
-        setError("");
-        dataFromClick = false;
-        $.post('php/saveNote.php', {
-            lng: getFormValue('lng', 'addNote'),
-            lat: getFormValue('lat', 'addNote'),
-            name: getFormValue('name', 'addNote'),
-            note: getFormValue('note', 'addNote'),
-            date: getFormValue('date', 'addNote'),
-            osm: getOsmNameValue(),
-            type: getSelectedValue()
-        }, function (data) {
-            if (map.hasLayer(temporaryMarker)) {
-                map.removeLayer(temporaryMarker);
-                map.user = getFormValue('name', 'addNote');
-            }
-            console.log(data);
-            layers[USERNOTES].layer.clearLayers();
-            layers[USERNOTES].list = [];
-            getData();
-            changeSidebarContent(LAYERS);
-        });
-    }
+/**
+ * ulozeni uzivatelskeho bodu
+ * @param images
+ */
+function saveNote(images) {
+    setError("");
+    dataFromClick = false;
+    $.post('php/saveNote.php', {
+        lng: getFormValue('lng', 'addNote'),
+        lat: getFormValue('lat', 'addNote'),
+        name: getFormValue('name', 'addNote'),
+        note: getFormValue('note', 'addNote'),
+        date: getFormValue('date', 'addNote'),
+        osm: getOsmNameValue(),
+        type: getSelectedValue(),
+        images: images  
+    }, function (data) {
+        if (map.hasLayer(temporaryMarker)) {
+            map.removeLayer(temporaryMarker);
+            map.user = getFormValue('name', 'addNote');
+        }
+        layers[USERNOTES].layer.clearLayers();
+        layers[USERNOTES].list = [];
+        getData();
+        changeSidebarContent(LAYERS);
+    });
+    
 }
 
+/**
+ * ulozeni useku
+ */
 function savePart() {
     if (validateFormPart()) {
         setError("");
@@ -1318,23 +1383,29 @@ function savePart() {
     }
 }
 
-function saveGuideInfo() {
-    if (validateFormGuideInfo()) {
-        setError("");
-        $.post('php/saveGuideInfo.php', {
-            name: getFormValue('name', 'addGuideInfo'),
-            note: getFormValue('note', 'addGuideInfo'),
-            date: getFormValue('date', 'addGuideInfo'),
-            node: getFormValue('node', 'addGuideInfo'),
-            type: getSelectedValue(),
-            osm: getOsmNameValue()
+/**
+ * ulozeni informace k rozcestniku
+ * @param images
+ */
+function saveGuideInfo(images) {
+    setError("");
+    $.post('php/saveGuideInfo.php', {
+        name: getFormValue('name', 'addGuideInfo'),
+        note: getFormValue('note', 'addGuideInfo'),
+        date: getFormValue('date', 'addGuideInfo'),
+        node: getFormValue('node', 'addGuideInfo'),
+        type: getSelectedValue(),
+        osm: getOsmNameValue(),
+        images: images    
     }, function (data) {
-            map.user = getFormValue('name', 'addGuideInfo');
-            changeSidebarContent(DATA);
-        });
-    }
+        map.user = getFormValue('name', 'addGuideInfo');
+        changeSidebarContent(DATA);
+    });    
 }
 
+/**
+ * importovani dat - klientska cast
+ */
 function importData() {
     setError("");
     var file = document.getElementById('file-select').files[0];
@@ -1349,6 +1420,7 @@ function importData() {
     var reader = new FileReader();
     reader.readAsText(file);
     reader.onload = function(){
+
         if(file.type!="application/json"){
             setError(msgErrorFileType);
             return;
@@ -1364,6 +1436,9 @@ function importData() {
 
 }
 
+/**
+ * @returns {boolean}
+ */
 function validateFormPart() {
     var element = document.forms["addPart"];
     if (!(validateSelect())){
@@ -1387,6 +1462,9 @@ function validateFormPart() {
 
 }
 
+/**
+ * @returns {boolean}
+ */
 function validateFormGuideInfo() {
     var element = document.forms["addGuideInfo"];
     if (!(validateSelect())){
@@ -1405,10 +1483,18 @@ function validateFormGuideInfo() {
         setError(msgErrorImage);
         return false;
     }
+    if(element['photos[]'].files.length>0){
+        uploadImages(document.forms["addGuideInfo"]['photos[]'].files, getFormValue('name', 'addGuideInfo'), GUIDEPOST_INFO);
+    } else {
+        saveGuideInfo(null);
+    }
+       
     return true;
-
 }
 
+/**
+ * @returns {boolean}
+ */
 function validateFormNote() {
     var element = document.forms["addNote"];
     if (CoordsDMS) { //pro ulozeni do db potrebuji decimal format souradnice
@@ -1431,25 +1517,49 @@ function validateFormNote() {
         setError(msgErrorDate);
         return false;
     }
-
-
-    //uploadImages(element['photos[]'].files, element['name'].value);
+    if(!(validateImages(element['photos[]'].files))){
+        setError(msgErrorImage);
+        return false;
+    }
+    if(element['photos[]'].files.length>0){
+        uploadImages(document.forms["addNote"]['photos[]'].files, element["name"].value, USERNOTES);
+    } else {
+        saveNote(null);
+    }
     return true;
 }
 
+/**
+ * pom. funkce pro zjisteni hodnoty daneho prvku formulare
+ * @returns {string|Number|value|*|.serializeArray.value|Document.addNote.lat}
+ */
 function getSelectedValue(){
     var e = document.getElementById('select');
     return e.options[e.selectedIndex].value;
 }
 
+/**
+ *
+ * @returns {number}
+ */
 function getOsmNameValue(){
     return document.getElementById('osm_name').checked ? 1 : 0;
 }
 
+/**
+ *
+ * kontrola vybranych moznosti
+ * @returns {boolean}
+ */
 function validateSelect(){
     return getSelectedValue()!=0;
 }
 
+/**
+ * kontrola obrazku
+ * @param files
+ * @returns {boolean}
+ */
 function validateImages(files){
     var type;
     for(var i = 0; i < files.length; i++) {
@@ -1461,26 +1571,35 @@ function validateImages(files){
     return true;
 }
 
-function uploadImages(files, name){
-    console.log(files, name);
-    var names = [];
-    for(var i = 0; i < files.length; i++){
-        var file = files[i];
-        var reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = function(event){
-            $.post('php/uploadImage.php', {
-                name: name+"_"+i,
-                data: event.target.result
-            }, function(data){
-                console.log(data);
-                names[names.length] = data;
-            })
-        }
+/**
+ * nahrani obrazku na server
+ * @param files
+ * @param name
+ * @param type
+ */
+function uploadImages(files, name, type){
+    var reader = new FileReader();    
+    reader.readAsDataURL(files[0]);
+    reader.onload = function(event){
+        $.post('php/uploadImage.php', {
+            name: name,
+            data: event.target.result
+        }, function(data){
+            if(type==GUIDEPOST_INFO) {
+                saveGuideInfo(data);
+            } else if(type==USERNOTES) {
+                saveNote(data);
+            }   
+                
+        })
     }
-    return names;
 }
 
+/**
+ * overeni platnosti data
+ * @param date
+ * @returns {boolean}
+ */
 function validateDate(date){
     var re = /[0-9]{1,2}[\/][0-9]{1,2}[\/][0-9]{4}/;
     var m;
@@ -1491,6 +1610,11 @@ function validateDate(date){
     }
 }
 
+/**
+ * overeni souradnic
+ * @param coordValue
+ * @returns {boolean}
+ */
 function validateCoords(coordValue) {
     var re = /[0-9]{1,2}[.][0-9]+/;
     var m;
@@ -1520,7 +1644,11 @@ function getFormValue(element, form) {
 }
 
 
-
+/**
+ * prevodni funkce
+ * @param decimal
+ * @returns {Array}
+ */
 function degreesDecimalToDMS(decimal) {
     var DMS = [];
     decimal = parseFloat(decimal);
@@ -1537,6 +1665,11 @@ function DMSToDecimal(DMS) {
     return (parseInt(DMS[0]) + (parseInt(DMS[1]) / 60) + (parseInt(DMS[2]) / 3600)).toFixed(5);
 }
 
+/**
+ *
+ * @param DMSString
+ * @returns {*}
+ */
 function simpleParseDMS(DMSString) {
     var DMS = [];
     var reDeg = /[0-9]{1,2}(?=°)/;
@@ -1556,6 +1689,9 @@ function simpleParseDMS(DMSString) {
     }
 }
 
+/**
+ * prepnuti zobrazeni souradnic
+ */
 function changeCoordinatesRepresentation() {
     if (CoordsDMS) {
         CoordsDMS = false;

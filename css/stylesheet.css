@@ -1,3 +1,5 @@
+/** CSS soubor k zobrazeni rozcestniku mezi mapou a tabulkou */
+
 body {
   background-color: #fff;
   font-family: "PT Sans", helvetica, arial, sans-serif;
@@ -43,5 +45,9 @@ a:visited {
 }
 
 .image-left {
-    background-image: url('http://osm.fit.vutbr.cz/xsvana00/screen.png');
+    background-image: url('http://osm.fit.vutbr.cz/xsvana00/images/screen.png');
+}
+
+img {
+  width: 200px;
 }

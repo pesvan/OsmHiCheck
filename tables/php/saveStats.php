@@ -1,6 +1,7 @@
 <?php
+/* skript pro ulozeni pravidelnych statistik */
 ini_set('display_errors', 1);
-ini_set('error_reporting', E_ALL);// Same as error_reporting(E_ALL);
+ini_set('error_reporting', E_ALL);
 require 'db.php';
 require 'funcTables.php';
 require dirname(__FILE__).'/../../map/php/func.php';

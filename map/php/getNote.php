@@ -1,4 +1,5 @@
 <?php
+/** ziskani informaci o uzivatelskem bodu */
 require 'db.php';
 require 'func.php';
 
@@ -25,11 +26,11 @@ $ways['type'] = 'FeatureCollection';
 
 
 if($type==USERNOTES){
-    $query_string = "SELECT id, tstamp, type, hi_user_id, note, date, osm_name, ST_AsGeoJSON(geom)
-from hicheck.notes where hicheck.notes.id = '$note_id'";
+    $query_string = "SELECT id, tstamp, type, hi_user_id, note, date, osm_name, ST_AsGeoJSON(geom), image
+from hicheck.notes where hicheck.notes.id = '$note_id' and hidden='0'";
 } else if($type==USERPARTS){
     $query_string = "SELECT id, tstamp, type, hi_user_id, note, date, osm_name, ST_AsGeoJSON(geom)
-from hicheck.parts where hicheck.parts.id = '$note_id'";
+from hicheck.parts where hicheck.parts.id = '$note_id' and hidden='0'";
 }
 
 
@@ -46,6 +47,9 @@ while($row = pg_fetch_assoc($data)){
     $prop['user']=$row['hi_user_id'];
     $prop['note']=$row['note'];
     $prop['type']=$row['type'];
+    if($type==USERNOTES){
+        $prop['image']=$row['image'];
+    }
     $prop['osm']=$row['osm_name'];
     $aux['type']='Feature';
     $aux['id']  = $row['id'];

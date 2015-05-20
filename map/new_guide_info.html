@@ -34,11 +34,10 @@
     <input type="text" name="date" maxlength="10"/>
 
     <h4>Fotografie</h4>
-    <label>Můžete vložit relevantní fotografie (png/jpeg). Maximalní velikost obrázku je 5MB. Obrázky přesahujíci jedním rozměrem 1200px budou přislusně zmenšeny</label>
-    <div class="red center">Upload obrazku momentalne nefunkcni (chybi GD knihovna (abych nezapomel))</div>
+    <label>Můžete vložit relevantní fotografii (png/jpeg). Maximalní velikost obrázku je 5MB. Obrázky přesahujíci jedním rozměrem 1200px budou přislusně zmenšeny</label>
     <input type="file" id="file-select" name="photos[]" multiple/>
     <br />
     <br />
-    <input class="button" type="button" value="Vložit" onclick="saveGuideInfo()"/>
+    <input class="button" type="button" value="Vložit" onclick="validateFormGuideInfo()"/>
     <input class="button" type="button" value="Reset" onclick="changeSidebarContent(DATA)"/>
 </form>

@@ -2,42 +2,45 @@
   {
     "date": "11\/5\/2015",
     "user": "username",
-    "note": "nadrazi",
+    "note": "namesti vypada v poradku",
+    "image": "http:\/\/fit.pesvan.cz\/BP\/text\/IMG2.jpg",
     "type": "OK",
     "user_is_osm": "1",
     "geometry": {
       "type": "Point",
       "coordinates": [
-        16.736333333333,
-        48.937222222222
+        0.736333333333,
+        1.937222222222
       ]
     }
   },
   {
     "date": "11\/5\/2015",
     "user": "username",
-    "note": "nadrazi",
+    "note": "na nadrazi chybi rozcestnik",
+    "image": "http:\/\/fit.pesvan.cz\/BP\/text\/IMG1.jpg",
     "type": "PROBLEM",
     "user_is_osm": "0",
     "geometry": {
       "type": "Point",
       "coordinates": [
-        16.736111111111,
-        48.937444444444
+        0.736111111111,
+        1.937444444444
       ]
     }
   },
   {
     "date": "11\/5\/2015",
     "user": "username",
-    "note": "nadrazi",
+    "note": "doplnuji dalsi fotografie k nadrazi",
+    "image": "http:\/\/fit.pesvan.cz\/BP\/text\/IMG3.jpg",
     "type": "COMMENT",
     "user_is_osm": "1",
     "geometry": {
       "type": "Point",
       "coordinates": [
-        16.736111111111,
-        48.937222222222
+        2.736111111111,
+        3.937222222222
       ]
     }
   }
