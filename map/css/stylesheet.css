@@ -1,3 +1,9 @@
+* iframe for josm and rawedit links */
+iframe#hiddenIframe {
+  display: none;
+  position: absolute;
+}
+
 .leaflet-control-layers {
 	box-shadow: 0 0px 0px rgba(0,0,0,0.4);
 	background: #fff;

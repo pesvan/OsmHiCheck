@@ -1293,9 +1293,9 @@ function JOSMLinkBuilder(relation, type, element) {
         t = "n";
     }
     if(relation==null){
-        return "http://localhost:8111/load_object?new_layer=true&objects="+t + element.id;
+        return "http://localhost:8111/load_object?objects="+t + element.id;
     }
-    return "http://localhost:8111/load_object?new_layer=true&objects=r" + relation.id + "," + t + element.id;
+    return "http://localhost:8111/load_object?objects=r" + relation.id + "," + t + element.id;
 }
 
 /**

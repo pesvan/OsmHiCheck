@@ -9,6 +9,12 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* iframe for josm and rawedit links */
+iframe#hiddenIframe {
+  display: none;
+  position: absolute;
+}
+
 .content {
   text-align: center;
 }

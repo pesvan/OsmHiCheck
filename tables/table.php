@@ -30,6 +30,7 @@ $query = "SELECT id, hstore_to_json(tags) AS tags FROM relations WHERE ".NOT_CYC
 $result = pg_query($db, $query);
 
 ?>
+<iframe id="hiddenIframe" name="hiddenIframe"></iframe>
 <div class="tables">
     <table>
         <tr>
@@ -116,7 +117,7 @@ $result = pg_query($db, $query);
                 ?>
 
         <tr>
-            <td><?php echo $row['id']; ?></td>
+            <td><?php echo "<a target=\"hiddenIframe\" href=\"http://localhost:8111/load_object?objects=r".$row['id']."\">".$row['id']."</a>"; ?></td>
             <?php
             /* vyber spravneho stylu na zaklade spravnosti prvku */
             $rid = $row['id'];
