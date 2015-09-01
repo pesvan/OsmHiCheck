@@ -117,7 +117,7 @@ $result = pg_query($db, $query);
                 ?>
 
         <tr>
-            <td><?php echo "<a target=\"hiddenIframe\" href=\"http://localhost:8111/load_object?objects=r".$row['id']."\">".$row['id']."</a>"; ?></td>
+            <td><?php echo "<a target=\"hiddenIframe\" href=\"http://localhost:8111/load_object?relation_members=true&objects=r".$row['id']."\">".$row['id']."</a>"; ?></td>
             <?php
             /* vyber spravneho stylu na zaklade spravnosti prvku */
             $rid = $row['id'];
