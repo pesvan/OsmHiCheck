@@ -43,7 +43,7 @@ function getKctValueList(){
  * @return array
  */
 function getRouteValueList(){
-    return array("foot", "hiking", "wheelchair", "ski", "horse", "bicycle");
+    return array("foot", "hiking", "wheelchair", "ski", "horse", "bicycle", "mtb", "piste");
 }
 
 /**
@@ -59,7 +59,7 @@ function getOsmcValueList(){
 }
 
 /**
- * tabulka kompatibility mezi hodnotami tagu netvork a kct_barva
+ * tabulka kompatibility mezi hodnotami tagu network a kct_barva
  * @return array
  */
 function getNetworkKctTable(){
