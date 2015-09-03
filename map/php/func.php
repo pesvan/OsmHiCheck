@@ -88,7 +88,9 @@ function getRouteKctTable(){
         "ski" =>        array("ski"),
         "wheelchair" => array("wheelchair"),
         "bicycle"=>     array("bicycle"),
-        "horse"=>       array("horse")
+        "horse"=>       array("horse"),
+        "mtb"=>         array("bicycle"),
+        "piste"=>       array("ski")
     );
 }
 
@@ -103,7 +105,9 @@ function getRouteOsmcTable(){
         "ski" =>        array("orange", "bar"),
         "wheelchair" => array("white", "wheelchair"),
         "bicycle"=>     array("yellow", "bar"),
-        "horse"=>       array("white", "dot")
+        "horse"=>       array("white", "dot"),
+        "mtb"=>         array("yellow", "bar"),
+        "piste"=>       array("orange", "bar")
     );
 }
 
