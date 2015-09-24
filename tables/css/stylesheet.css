@@ -19,6 +19,13 @@ iframe#hiddenIframe {
   text-align: center;
 }
 
+.footer {
+  margin: 20pt;
+  float: right;
+  font-size: -1;
+  color: gray;
+}
+
 a:visited {
     color: inherit;
 }

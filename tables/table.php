@@ -63,55 +63,37 @@ $result = pg_query($db, $query);
 
                 $checked = getCheckedValues($kctKey);
                 $errorStr = "";
-                if(array_key_exists('network', $tags) && array_key_exists($kctKey, $tags)
-                    && !(in_array('network', $red)) && !(in_array($kctKey, $red))){
-                    if(checkTagNetworkKct($tags['network'], $tags[$kctKey])>0){
-                        $errorStr .= "network type nekoresponduje s kct hodnotou; ";
-                        $red[] = 'network';
-                        $red[] = $kctKey;
-                    } else {
-                        if($filter=='err_network'){
-                            continue;
-                        }                        
-                    }
-                } else {
-                    if($filter=='err_network'){
-                            continue;
-                    }
+                if($filter=='err_network'){
+			if(array_key_exists('network', $tags) && array_key_exists($kctKey, $tags)
+			    && !(in_array('network', $red)) && !(in_array($kctKey, $red))){
+			    if(checkTagNetworkKct($tags['network'], $tags[$kctKey])>0){
+				$errorStr .= "network type nekoresponduje s kct hodnotou; ";
+				$red[] = 'network';
+				$red[] = $kctKey;
+			    } else { continue; }
+			} else { continue; }
                 }
-                if(array_key_exists('osmc:symbol', $tags) && array_key_exists('route', $tags) && array_key_exists($kctKey, $tags)
-                    && !(in_array('osmc:symbol', $red)) && !(in_array($kctKey, $red)) && !(in_array('route', $red))){
-                    if(checkTagOsmcKctRoute($tags['osmc:symbol'], $tags[$kctKey], $tags['route'])>0){
-                        $errorStr .= "typ cesty v rozporu u osmc:symbol/kct/route; ";
-                        $red[] = 'osmc:symbol';
-                        $red[] = $kctKey;
-                        $red[] = 'route';
-                    } else {
-                        if($filter=='err_type'){
-                            continue;
-                        }                        
-                    }
-                } else {
-                    if($filter=='err_type'){
-                            continue;
-                    }
+                if($filter=='err_type'){
+			if(array_key_exists('osmc:symbol', $tags) && array_key_exists('route', $tags) && array_key_exists($kctKey, $tags)
+			    && !(in_array('osmc:symbol', $red)) && !(in_array($kctKey, $red)) && !(in_array('route', $red))){
+			    if(checkTagOsmcKctRoute($tags['osmc:symbol'], $tags[$kctKey], $tags['route'])>0){
+				$errorStr .= "typ cesty v rozporu u osmc:symbol/kct/route; ";
+				$red[] = 'osmc:symbol';
+				$red[] = $kctKey;
+				$red[] = 'route';
+			    } else { continue; }
+			} else { continue; }
                 }                
-                if(array_key_exists('route', $tags) && array_key_exists('osmc:symbol', $tags) && array_key_exists($kctKey, $tags)
-                    && !(in_array('osmc:symbol', $red)) && !(in_array($kctKey, $red))){
-                    $color = getKctTrackColor($kctKey, $tags['route']);
-                    if(checkTagOsmcKctColor($tags['osmc:symbol'], $color)>0){
-                        $errorStr .= "barva cesty v rozporu u osmc:symbol/kct; ";
-                        $red[] = 'osmc:symbol';
-                        $red[] = $kctKey;                        
-                    } else {
-                        if($filter=='err_color'){
-                            continue;
-                        }                        
-                    }
-                } else {
-                    if($filter=='err_color'){
-                            continue;
-                    }
+                if($filter=='err_color'){
+			if(array_key_exists('route', $tags) && array_key_exists('osmc:symbol', $tags) && array_key_exists($kctKey, $tags)
+			    && !(in_array('osmc:symbol', $red)) && !(in_array($kctKey, $red))){
+			    $color = getKctTrackColor($kctKey, $tags['route']);
+			    if(checkTagOsmcKctColor($tags['osmc:symbol'], $color)>0){
+				$errorStr .= "barva cesty v rozporu u osmc:symbol/kct; ";
+				$red[] = 'osmc:symbol';
+				$red[] = $kctKey;
+			    } else { continue; }
+			} else { continue; }
                 }
                 $orange = array_diff($orange, $red);
                 ?>

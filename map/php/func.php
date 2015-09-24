@@ -43,7 +43,7 @@ function getKctValueList(){
  * @return array
  */
 function getRouteValueList(){
-    return array("foot", "hiking", "wheelchair", "ski", "horse", "bicycle");
+    return array("foot", "hiking", "wheelchair", "ski", "horse", "bicycle", "mtb", "piste");
 }
 
 /**
@@ -59,7 +59,7 @@ function getOsmcValueList(){
 }
 
 /**
- * tabulka kompatibility mezi hodnotami tagu netvork a kct_barva
+ * tabulka kompatibility mezi hodnotami tagu network a kct_barva
  * @return array
  */
 function getNetworkKctTable(){
@@ -88,7 +88,9 @@ function getRouteKctTable(){
         "ski" =>        array("ski"),
         "wheelchair" => array("wheelchair"),
         "bicycle"=>     array("bicycle"),
-        "horse"=>       array("horse")
+        "horse"=>       array("horse"),
+        "mtb"=>         array("bicycle"),
+        "piste"=>       array("ski")
     );
 }
 
@@ -103,7 +105,9 @@ function getRouteOsmcTable(){
         "ski" =>        array("orange", "bar"),
         "wheelchair" => array("white", "wheelchair"),
         "bicycle"=>     array("yellow", "bar"),
-        "horse"=>       array("white", "dot")
+        "horse"=>       array("white", "dot"),
+        "mtb"=>         array("yellow", "bar"),
+        "piste"=>       array("orange", "bar")
     );
 }
 
