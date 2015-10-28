@@ -113,7 +113,7 @@ function getCountErrors(){
  * @return array
  */
 function getStatsForGraphs(){
-    $result = pg_query("SELECT date, relations_missing, relations_wrong FROM hicheck.stats ORDER BY date DESC LIMIT 31");
+    $result = pg_query("SELECT date, relations_missing, relations_wrong FROM hicheck.stats ORDER BY date DESC LIMIT 42");
     $ret = array();
     $cnt = 0;
     while($row=pg_fetch_assoc($result)){
@@ -132,13 +132,13 @@ function getStatsForGraphs(){
  */
 function prepareGraphs($data){
     $cnt = count($data);
-    if($cnt<31){
-        for($i = $cnt; $i<31; $i++){
+    if($cnt<42){
+        for($i = $cnt; $i<42; $i++){
             array_push($data, array("",0,0));
         }
 
     }    
-    for ($i=0; $i < 31; $i++) { 
+    for ($i=0; $i < 42; $i++) { 
         $data[$i][0] = substr($data[$i][0], 6)."/".substr($data[$i][0], 4, 2);
     }
     return array_reverse($data);
