@@ -11,7 +11,7 @@ const NOT_CYCLO = "relations.tags->'route'!='bicycle' and (
     not exist(relations.tags,'kct_red') or 
     not exist(relations.tags,'kct_blue') or 
     not exist(relations.tags,'kct_yellow') or 
-    not exist(relations.tags,'kct_greeen') or 
+    not exist(relations.tags,'kct_green') or 
     not exist(relations.tags,'kct_none'))";
 
 
@@ -108,12 +108,14 @@ function getCountErrors(){
     return $ret;
 }
 
+define('DAYS_MAX', 42); #6 weeks
+
 /**
  * funkce, ktera ziska statistiky ktere se pravidelne zadavaji do databaze pro vykresleni grafu
  * @return array
  */
 function getStatsForGraphs(){
-    $result = pg_query("SELECT date, relations_missing, relations_wrong FROM hicheck.stats ORDER BY date DESC LIMIT 31");
+    $result = pg_query("SELECT date, relations_missing, relations_wrong FROM hicheck.stats ORDER BY date DESC LIMIT ".DAYS_MAX);
     $ret = array();
     $cnt = 0;
     while($row=pg_fetch_assoc($result)){
@@ -132,13 +134,13 @@ function getStatsForGraphs(){
  */
 function prepareGraphs($data){
     $cnt = count($data);
-    if($cnt<31){
-        for($i = $cnt; $i<31; $i++){
+    if($cnt<DAYS_MAX){
+        for($i = $cnt; $i<DAYS_MAX; $i++){
             array_push($data, array("",0,0));
         }
 
     }    
-    for ($i=0; $i < 31; $i++) { 
+    for ($i=0; $i < DAYS_MAX; $i++) { 
         $data[$i][0] = substr($data[$i][0], 6)."/".substr($data[$i][0], 4, 2);
     }
     return array_reverse($data);
