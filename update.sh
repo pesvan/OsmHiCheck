@@ -33,6 +33,12 @@ LOCK=/tmp/xsvana00.lock
 test -f $LOCK && { echo "Lock file $LOCK exists. Exiting..." >>$LOGFILE; exit; }
 touch $LOCK
 
+function finish {
+	rm $LOCK
+}
+
+trap finish EXIT
+
 echo ------------------------------------------------------------ >> $LOGFILE 
 
 CURRENT=`pwd`
@@ -84,7 +90,5 @@ fi
 mv $NEXT_DUMP $PRESENT_DUMP
 mv $NEXT_FILTERED_DUMP $PRESENT_FILTERED_DUMP
 cd $CURRENT
-
-rm $LOCK
 
 exit 0
