@@ -421,11 +421,11 @@ function getFilterFromZoom($zoom){
     if($zoom >= 16){
         return 0;
     } else if($zoom <16 && $zoom >= 15) {
-        return 0.00005;
+        return 0.000005;
     } else if($zoom <15 && $zoom >= 13) {
-        return 0.0001;
+        return 0.00001;
     } else if($zoom == 12) {
-        return 0.008;
+        return 0.0008;
     } else return 1;
 }
 
