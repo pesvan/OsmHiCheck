@@ -8,10 +8,10 @@ const WARNING = 1;
  * konstanta, jenz se pridava do sql dotazu - vycleneni cyklisitckych tras bez barvy
  */
 const NOT_CYCLO = "relations.tags->'route'!='bicycle' and (
-    not exist(relations.tags,'kct_red') or 
-    not exist(relations.tags,'kct_blue') or 
-    not exist(relations.tags,'kct_yellow') or 
-    not exist(relations.tags,'kct_green') or 
+    not exist(relations.tags,'kct_red') or
+    not exist(relations.tags,'kct_blue') or
+    not exist(relations.tags,'kct_yellow') or
+    not exist(relations.tags,'kct_green') or
     not exist(relations.tags,'kct_none'))";
 
 
@@ -50,6 +50,7 @@ function getCountErrors(){
     $ret['err_color'] = 0;
     $ret['err_type'] = 0;
     $ret['err_network'] = 0;
+    $ret['err_cyclenet'] = 0;
     $query = "SELECT hstore_to_json(tags) as tags FROM relations where ".NOT_CYCLO;
     $result = pg_query($query);
     while ($row = pg_fetch_assoc($result)){
@@ -78,7 +79,7 @@ function getCountErrors(){
                 if(!$isWrong){
                     $isWrong = true;
                 }
-                $ret['err_network']++;     
+                $ret['err_network']++;
             }
         }
         if(array_key_exists('osmc:symbol', $tags) && array_key_exists('route', $tags) && array_key_exists($kctKey, $tags)
@@ -87,7 +88,7 @@ function getCountErrors(){
                 if(!$isWrong){
                     $isWrong = true;
                 }
-                $ret['err_type']++;     
+                $ret['err_type']++;
             }
         }
         if(array_key_exists('route', $tags) && array_key_exists('osmc:symbol', $tags) && array_key_exists($kctKey, $tags)
@@ -96,8 +97,16 @@ function getCountErrors(){
             if(checkTagOsmcKctColor($tags['osmc:symbol'], $color)>0){
                 if(!$isWrong){
                     $isWrong = true;
-                }              
-                $ret['err_color']++;         
+                }
+                $ret['err_color']++;
+            }
+        }
+        if(array_key_exists('route', $tags) && array_key_exists('network', $tags) && array_key_exists($kctKey, $tags) && $tags[$kctKey] == 'bicycle'){
+            if(!array_key_exists('ref', $tags) || checkTagCycleNet($tags['network'], $tags['ref'])>0){
+                if(!$isWrong){
+                    $isWrong = true;
+                }
+                $ret['err_cyclenet']++;
             }
         }
         if($isWrong){
@@ -139,8 +148,8 @@ function prepareGraphs($data){
             array_push($data, array("",0,0));
         }
 
-    }    
-    for ($i=0; $i < DAYS_MAX; $i++) { 
+    }
+    for ($i=0; $i < DAYS_MAX; $i++) {
         $data[$i][0] = substr($data[$i][0], 6)."/".substr($data[$i][0], 4, 2);
     }
     return array_reverse($data);
@@ -164,7 +173,7 @@ function getPercentageFromArray($arr, $total, $percent){
         if($percent){
             $res[$i] = $res[$i]."%";
         }
-        
+
     }
     return $res;
 }
