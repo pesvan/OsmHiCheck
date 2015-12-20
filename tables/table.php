@@ -19,7 +19,7 @@ if($specific=='all_missing'){
     $spec_query = "and not exist(relations.tags,'osmc:symbol')";
 } else {
     $filter = $specific;
-} 
+}
 if(!(isset($spec_query))){
     $spec_query = "";
 }
@@ -27,6 +27,7 @@ if(!(isset($filter))){
     $filter = "";
 }
 $query = "SELECT id, hstore_to_json(tags) AS tags FROM relations WHERE ".NOT_CYCLO." ".$spec_query." ORDER BY id";
+//echo "q: $query\n";
 $result = pg_query($db, $query);
 
 ?>
@@ -49,16 +50,16 @@ $result = pg_query($db, $query);
                 $red = getWrong($incorrect, $kctKey);
 
                     /* filtrovani */
-                if( ($filter=='w_network' && !in_array('network', $red)) 
-                || ($filter=='w_complete' && !in_array('complete', $red)) 
-                || ($filter=='w_osmc:symbol' && !in_array('osmc:symbol', $red)) 
-                || ($filter=='route' && !in_array('route', $red)) 
+                if( ($filter=='w_network' && !in_array('network', $red))
+                || ($filter=='w_complete' && !in_array('complete', $red))
+                || ($filter=='w_osmc:symbol' && !in_array('osmc:symbol', $red))
+                || ($filter=='route' && !in_array('route', $red))
                 || ($filter=='kct' && !in_array($kctKey, $red))){
                     continue;
                  }
-                    
+
                  /* vyhledavani chyb */
-                
+
                 $orange = getMissing($tags, $kctKey);
 
                 $checked = getCheckedValues($kctKey);
@@ -83,7 +84,7 @@ $result = pg_query($db, $query);
 				$red[] = 'route';
 			    } else { continue; }
 			} else { continue; }
-                }                
+                }
                 if($filter=='err_color'){
 			if(array_key_exists('route', $tags) && array_key_exists('osmc:symbol', $tags) && array_key_exists($kctKey, $tags)
 			    && !(in_array('osmc:symbol', $red)) && !(in_array($kctKey, $red))){
@@ -92,6 +93,16 @@ $result = pg_query($db, $query);
 				$errorStr .= "barva cesty v rozporu u osmc:symbol/kct; ";
 				$red[] = 'osmc:symbol';
 				$red[] = $kctKey;
+			    } else { continue; }
+			} else { continue; }
+                }
+                if($filter=='err_cyclenet'){
+			if(array_key_exists('network', $tags) && array_key_exists($kctKey, $tags)
+			    && !(in_array('network', $red)) && !(in_array($kctKey, $red)) && $tags[$kctKey] == 'bicycle'){
+			    if(!array_key_exists('ref', $tags) || checkTagCycleNet($tags['network'], $tags['ref'])>0){
+				$errorStr .= "network type nekoresponduje s ref u cyklostezky; ";
+				$red[] = 'network';
+				$red[] = 'ref';
 			    } else { continue; }
 			} else { continue; }
                 }
@@ -114,9 +125,9 @@ $result = pg_query($db, $query);
                     } else {
                         echo "<td>".$tags[$key]."</td>";
                     }
-                }        
+                }
             ?>
-            
+
         </tr>
         <?php } ?>
     </table>
