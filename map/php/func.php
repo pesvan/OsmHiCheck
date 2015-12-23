@@ -289,6 +289,21 @@ function checkTagOsmcKctColor($osmc, $kctColor){
     return $osmcColor==$kctColor ? 0 : 1;
 }
 
+/**
+ * @param $network
+ * @param $ref
+ * @return int
+ */
+function checkTagCycleNet($network, $ref){
+    //echo "$network:$ref<br/>\n";
+
+    if($network == "lcn" && !is_numeric($ref)) return 0;
+    if($network == "lcn" && is_numeric($ref) && $ref > 999) return 0;
+    if($network == "rcn" && is_numeric($ref) && $ref > 999) return 0;
+    if($network == "ncn" && is_numeric($ref) && $ref > 0 && $ref < 1000) return 0;
+
+    return 1;
+}
 
 /**
  * @param $osmc
