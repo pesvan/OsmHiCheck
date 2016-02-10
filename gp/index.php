@@ -5,7 +5,7 @@ $time_start = microtime(true);
 require_once dirname(__FILE__).'/../db_conf.php';
 $db = pg_connect("host=".SERVER." dbname=".DATABASE." user=".USERNAME." password=".PASSWORD);
 
-$max_ok_distance = 30;
+$max_ok_distance = 20;
 
 echo <<<EOF
 <html>
@@ -91,43 +91,47 @@ if(isset($_GET['analyse'])){ //{{{
     WHERE ST_Distance_Sphere(n.geom, g.geom) < $max_ok_distance;";
   $res = pg_query($query);
   while ($data = pg_fetch_object($res)) {
-    if(isset($close[$data->n_id])){
-      unset($gp[$close[$data->n_id]->g_id]);
-    }
-    $count[$data->n_id]++;
-    $close[$data->n_id] = $data;
+    $close[$data->n_id][] = $data;
   }
   pg_free_result($res);
 
   echo "<p>Nodes with information=guidepost (".count($no).")</p>\n";
 
   echo "<table>";
-  echo '<tr><th>node ID</th><th>node coord</th><th>node ref</th><th>img ID</th><th>distance</th><th>img ref</th><th>img count</th></tr>'."\n";
+  echo '<tr><th>node ID</th><th>node coord</th><th>node ref</th><th>images</th></tr>'."\n";
   foreach($no as $n){
     echo "<tr>";
     //POINT(12.5956722222222 49.6313222222222)
     $geom = preg_replace('/POINT\(([-0-9.]{1,8})[0-9]* ([-0-9.]{1,8})[0-9]*\)/', '$2 $1', $n->geom);
     echo "<td><a href=\"http://openstreetmap.org/node/".$n->id."\">".$n->id."</a></td>";
     echo "<td><a target=\"hiddenIframe\" href=\"http://localhost:8111/load_object?objects=n".$n->id."\">".$geom."</a></td><td>".$n->ref."</td>";
-    if(isset($close[$n->id])){
-      $g_id = $close[$n->id]->g_id;
-      $d = sprintf("%0.2f", $close[$n->id]->dist);
-      $c = isset($count[$n->id]) ? $count[$n->id] : '';
-      echo '<td><a href="http://api.openstreetmap.cz/table/id/'.$g_id.'">'.$g_id.'</a>';
-      echo '</td><td>'.$d.'</td><td>'.$gp[$g_id]->ref.'</td><td>'.$c.'</td>'."\n";
+    if(isset($close[$n->id])) {
+      echo '<td>';
+      foreach($close[$n->id] as $d){
+        $g_id = $d->g_id;
+        $dist = sprintf("%0.2f", $d->dist);
+        echo '<a href="http://api.openstreetmap.cz/table/id/'.$g_id.'">'.$g_id.'</a>';
+        echo '('.$dist.'m, '.$gp[$g_id]->ref.') ';
 
-      unset($gp[$g_id]);
+        $gp_used[$g_id] = 1;
+      }
+      //$cnt = count($close[$n->id]);
+      //echo '<td>'.$cnt.'</td>'."\n";
+      echo "\n";
     } else {
-      echo '<td></td><td></td><td></td><td></td>'."\n";
+      echo '<td></td>'."\n";
     }
     echo "</tr>";
   }
   echo "</table>";
 
-  echo "<p>Unused guideposts photo entries (".count($gp).")</p>\n";
+  echo "<p>Guideposts photo entries (total:".count($gp).", used: ".count($gp_used).", unused: ".(count($gp)-count($gp_used)).")</p>\n";
 
   echo "<table>";
   foreach($gp as $p){
+    //skip used images and only left unused ones
+    if(isset($gp_used[$p->id])) continue;
+
     $geom = preg_replace('/POINT\(([-0-9.]{1,8})[0-9]* ([-0-9.]{1,8})[0-9]*\)/', '$2 $1', $p->geom);
     echo '<tr><td><a href="http://api.openstreetmap.cz/table/id/'.$p->id.'">'.$p->id.'</a></td><td>'.$p->ref.'</td><td>'.$geom.'</td></tr>'."\n";
   }
