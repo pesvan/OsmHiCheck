@@ -16,11 +16,18 @@ echo <<<EOF
 td { 
   border: 1px solid black;
 }
+.ok tr { background-color:#ff0000; }
 table { 
   border-collapse: collapse;
 }
+/* iframe for josm and rawedit links */
+iframe#hiddenIframe {
+    display: none;
+      position: absolute;
+}
 </style>
 <body>
+<iframe id="hiddenIframe" name="hiddenIframe"></iframe>
 
 <p>Max node and img distance: $max_ok_distance m</p>
 
@@ -100,7 +107,8 @@ if(isset($_GET['analyse'])){ //{{{
     echo "<tr>";
     //POINT(12.5956722222222 49.6313222222222)
     $geom = preg_replace('/POINT\(([-0-9.]{1,8})[0-9]* ([-0-9.]{1,8})[0-9]*\)/', '$2 $1', $n->geom);
-    echo "<td><a href=\"http://openstreetmap.org/node/".$n->id."\">".$n->id."</a></td><td>".$geom."</td><td>".$n->ref."</td>";
+    echo "<td><a href=\"http://openstreetmap.org/node/".$n->id."\">".$n->id."</a></td>";
+    echo "<td><a target=\"hiddenIframe\" href=\"http://localhost:8111/load_object?objects=n".$n->id."\">".$geom."</a></td><td>".$n->ref."</td>";
     if(isset($close[$n->id])){
       $g_id = $close[$n->id]->g_id;
       $d = sprintf("%0.2f", $close[$n->id]->dist);
