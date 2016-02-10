@@ -31,5 +31,5 @@ $statistics = getCount(); ?>
 </div>
 
 <div class="graphs">
- <img src="http://osm.fit.vutbr.cz/xsvana00/tables/php/graph.php"/>
+ <img src="./php/graph.php"/>
 </div>
