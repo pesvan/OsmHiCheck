@@ -45,7 +45,7 @@ a:visited {
 }
 
 .image-left {
-    background-image: url('http://osm.fit.vutbr.cz/xsvana00/images/screen.png');
+    background-image: url('../images/screen.png');
 }
 
 img {

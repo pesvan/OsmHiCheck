@@ -25,9 +25,7 @@ NEXT_FILTERED_DUMP=updated_filtered_dump.o5m
 UPDATE=update_database.osc
 
 #database credential
-DATABASE=xsvana00
-USER=xsvana00
-PASS=osm
+AUTH_FILE=$HOME/.osmosis.auth
 
 LOCK=/tmp/xsvana00.lock
 test -f $LOCK && { echo "Lock file $LOCK exists. Exiting..." >>$LOGFILE; exit; }
@@ -75,7 +73,7 @@ if [ "$ret" != "0" ]; then
 else
 	echo Filtered updated dump succesfully converted. [$ret] >> $LOGFILE
 fi
-$OSMOSIS --rxc file=$UPDATE --wpc database=$DATABASE user=$USER password=$PASS
+$OSMOSIS --rxc file=$UPDATE --wpc authFile=$AUTH_FILE
 ret=$?
 echo `date` >> $LOGFILE
 if [ "$ret" != "0" ]; then 
@@ -87,7 +85,10 @@ else
 	php /var/www/html/xsvana00/tables/php/saveStats.php
 fi
 
-mv $NEXT_DUMP $PRESENT_DUMP
+#remove stuff outside of region of interest - CZ
+$OSMCONVERT -B=czech-republic.poly $NEXT_DUMP >$PRESENT_DUMP
+rm $NEXT_DUMP
+
 mv $NEXT_FILTERED_DUMP $PRESENT_FILTERED_DUMP
 cd $CURRENT
 

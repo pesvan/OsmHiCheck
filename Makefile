@@ -1,6 +1,6 @@
 WEB?=/var/www/html/OsmHiCheck
 
-PHP_FILES=index.html uploads
+PHP_FILES=index.html uploads gp
 CSS_FILES=css/stylesheet.css
 IMAGE_FILES=images/screen.png
 
