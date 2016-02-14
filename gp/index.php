@@ -16,7 +16,9 @@ echo <<<EOF
 td { 
   border: 1px solid black;
 }
-.ok tr { background-color:#ff0000; }
+tr.ok { background-color:#b0ffa0; }
+tr.bad { background-color:#ffa090; }
+tr.cor { background-color:#ff5010; }
 table { 
   border-collapse: collapse;
 }
@@ -100,7 +102,15 @@ if(isset($_GET['analyse'])){ //{{{
   echo "<table>";
   echo '<tr><th>node ID</th><th>node coord</th><th>node ref</th><th>images</th></tr>'."\n";
   foreach($no as $n){
-    echo "<tr>";
+    echo "<tr";
+    if(!isset($n->ref) && isset($close[$n->id])) {
+      echo ' class="cor"'; 
+    } elseif(!isset($n->ref)) {
+      echo ' class="bad"'; 
+    } elseif(isset($close[$n->id])) {
+      echo ' class="ok"';
+    }
+    echo ">";
     //POINT(12.5956722222222 49.6313222222222)
     $geom = preg_replace('/POINT\(([-0-9.]{1,8})[0-9]* ([-0-9.]{1,8})[0-9]*\)/', '$2 $1', $n->geom);
     echo "<td><a href=\"http://openstreetmap.org/node/".$n->id."\">".$n->id."</a></td>";
