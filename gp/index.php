@@ -1,6 +1,10 @@
 <?php
 
+$time_start = microtime(true);
+
 $gpx_file="/tmp/guideposts.gpx";
+
+$gpx_time=file_exists($gpx_file) ? '('.date('d.m.Y H:i', filemtime($gpx_file)).')' : '';
 
 //output prepared GPX if any
 if(isset($_GET['gpx'])){ //{{{
@@ -20,8 +24,6 @@ if(isset($_GET['gpx'])){ //{{{
   }
 }
 //}}}
-
-$time_start = microtime(true);
 
 require_once dirname(__FILE__).'/../db_conf.php';
 $db = pg_connect("host=".SERVER." dbname=".DATABASE." user=".USERNAME." password=".PASSWORD);
@@ -58,7 +60,7 @@ iframe#hiddenIframe {
 <ul>
 <li><a href="./?fetch">Fetch DB from api.osm.cz to osm.fit.vutbr.cz</a></li>
 <li><a href="./?analyse">Analyse current DB on osm.fit.vutbr.cz</a></li>
-<li><a href="./?gpx">Download GPX with guideposts without correct photo</a></li>
+<li><a href="./?gpx">Download GPX with guideposts without correct photos</a> $gpx_time</li>
 </ul>
 
 EOF;
@@ -132,6 +134,7 @@ if(isset($_GET['analyse'])){ //{{{
   echo "<table>";
   echo '<tr><th>node ID</th><th>node coord</th><th>node ref</th><th>images</th></tr>'."\n";
   foreach($no as $n){
+
     //check for row class - OK (have ref and img), BAD, CORRECT
     echo "<tr";
     if(!isset($n->ref)){
@@ -140,20 +143,23 @@ if(isset($_GET['analyse'])){ //{{{
       echo isset($close[$n->id]) ? ' class="ok"' : '';
     }
     echo ">";
-    //check if need to putput to GPX
+
+    //check if need to put to GPX
     $geom = preg_replace('/POINT\(([-0-9.]{1,8})[0-9]* ([-0-9.]{1,8})[0-9]*\)/', 'lat="$2" lon="$1"', $n->geom);
+    $name = isset($n->name) ? $n->name : 'n'.$n->id;
     if(isset($close[$n->id])) {
       if (!isset($n->ref)){
         //gp with image but without REF
         fwrite($gpx, "<wpt $geom>"."\n");
-        fwrite($gpx, '<name>'.$n->name.'</name>'."\n");
-        fwrite($gpx, '<sym>misc-sunny</sym>'."\n");
+        fwrite($gpx, "<name>$name</name>"."\n");
+        fwrite($gpx, '<sym>transport-accident</sym>'."\n");
         fwrite($gpx, '</wpt>'."\n");
       }
     } else {
       //gp without image
       fwrite($gpx, "<wpt $geom>"."\n");
-      fwrite($gpx, '<name>'.$n->name.'</name>'."\n");
+      fwrite($gpx, "<name>$name</name>"."\n");
+      fwrite($gpx, '<sym>misc-sunny</sym>'."\n");
       fwrite($gpx, '</wpt>'."\n");
     }
 
