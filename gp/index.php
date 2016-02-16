@@ -2,6 +2,29 @@
 
 $time_start = microtime(true);
 
+$gpx_file="/tmp/guideposts.gpx";
+
+$gpx_time=file_exists($gpx_file) ? '('.date('d.m.Y H:i', filemtime($gpx_file)).')' : '';
+
+//output prepared GPX if any
+if(isset($_GET['gpx'])){ //{{{
+
+  if(file_exists($gpx_file)){
+    header('Content-Description: File Transfer');
+    header('Content-Type: application/gpx+xml');
+    header('Content-Disposition: attachment; filename="'.basename($gpx_file).'"');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate');
+    header('Pragma: public');
+    header('Content-Length: '.filesize($gpx_file));
+    readfile($gpx_file);
+    exit;
+  } else {
+    echo "Generate GPX by running analysis!\n";
+  }
+}
+//}}}
+
 require_once dirname(__FILE__).'/../db_conf.php';
 $db = pg_connect("host=".SERVER." dbname=".DATABASE." user=".USERNAME." password=".PASSWORD);
 
@@ -16,9 +39,12 @@ echo <<<EOF
 td { 
   border: 1px solid black;
 }
-.ok tr { background-color:#ff0000; }
+tr.ok { background-color:#b0ffa0; }
+tr.bad { background-color:#ffa090; }
+tr.cor { background-color:#ff5010; }
 table { 
   border-collapse: collapse;
+  font-size: 9pt;
 }
 /* iframe for josm and rawedit links */
 iframe#hiddenIframe {
@@ -34,6 +60,7 @@ iframe#hiddenIframe {
 <ul>
 <li><a href="./?fetch">Fetch DB from api.osm.cz to osm.fit.vutbr.cz</a></li>
 <li><a href="./?analyse">Analyse current DB on osm.fit.vutbr.cz</a></li>
+<li><a href="./?gpx">Download GPX with guideposts without correct photos</a> $gpx_time</li>
 </ul>
 
 EOF;
@@ -66,6 +93,13 @@ if(isset($_GET['fetch'])){ //{{{
 } // }}}
 
 if(isset($_GET['analyse'])){ //{{{
+  //prepare GPX header
+  $gpx=fopen($gpx_file, 'w');
+  fwrite($gpx, '<?xml version="1.0" encoding="utf-8" standalone="yes"?>'."\n");
+  fwrite($gpx, '<gpx version="1.1" creator="Locus Android"'."\n");
+  fwrite($gpx, '  xmlns="http://www.topografix.com/GPX/1/1"'."\n");
+  fwrite($gpx, '  xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">'."\n");
+
   $query="SELECT id, ref, ST_AsText(geom) AS geom FROM hicheck.guideposts";
   $res = pg_query($query);
   while ($data = pg_fetch_object($res)) {
@@ -75,7 +109,7 @@ if(isset($_GET['analyse'])){ //{{{
   //echo "Loaded guideposts from DB.<br/>\n";
   //ob_flush();
 
-  $query="SELECT id, ST_AsText(geom) AS geom, tags->'ref' AS ref FROM nodes WHERE tags @> '\"information\"=>\"guidepost\"'::hstore ORDER BY id";
+  $query="SELECT id, ST_AsText(geom) AS geom, tags->'ref' AS ref, tags->'name' AS name FROM nodes WHERE tags @> '\"information\"=>\"guidepost\"'::hstore ORDER BY id";
   $res = pg_query($query);
   while ($data = pg_fetch_object($res)) {
     $no[$data->id] = $data;
@@ -100,7 +134,35 @@ if(isset($_GET['analyse'])){ //{{{
   echo "<table>";
   echo '<tr><th>node ID</th><th>node coord</th><th>node ref</th><th>images</th></tr>'."\n";
   foreach($no as $n){
-    echo "<tr>";
+
+    //check for row class - OK (have ref and img), BAD, CORRECT
+    echo "<tr";
+    if(!isset($n->ref)){
+      echo isset($close[$n->id]) ? ' class="cor"' : ' class="bad"'; 
+    } else {
+      echo isset($close[$n->id]) ? ' class="ok"' : '';
+    }
+    echo ">";
+
+    //check if need to put to GPX
+    $geom = preg_replace('/POINT\(([-0-9.]{1,8})[0-9]* ([-0-9.]{1,8})[0-9]*\)/', 'lat="$2" lon="$1"', $n->geom);
+    $name = isset($n->name) ? $n->name : 'n'.$n->id;
+    if(isset($close[$n->id])) {
+      if (!isset($n->ref)){
+        //gp with image but without REF
+        fwrite($gpx, "<wpt $geom>"."\n");
+        fwrite($gpx, "<name>$name</name>"."\n");
+        fwrite($gpx, '<sym>transport-accident</sym>'."\n");
+        fwrite($gpx, '</wpt>'."\n");
+      }
+    } else {
+      //gp without image
+      fwrite($gpx, "<wpt $geom>"."\n");
+      fwrite($gpx, "<name>$name</name>"."\n");
+      fwrite($gpx, '<sym>misc-sunny</sym>'."\n");
+      fwrite($gpx, '</wpt>'."\n");
+    }
+
     //POINT(12.5956722222222 49.6313222222222)
     $geom = preg_replace('/POINT\(([-0-9.]{1,8})[0-9]* ([-0-9.]{1,8})[0-9]*\)/', '$2 $1', $n->geom);
     echo "<td><a href=\"http://openstreetmap.org/node/".$n->id."\">".$n->id."</a></td>";
@@ -136,6 +198,9 @@ if(isset($_GET['analyse'])){ //{{{
     echo '<tr><td><a href="http://api.openstreetmap.cz/table/id/'.$p->id.'">'.$p->id.'</a></td><td>'.$p->ref.'</td><td>'.$geom.'</td></tr>'."\n";
   }
   echo "</table>";
+
+  fwrite($gpx, '</gpx>'."\n");
+  fclose($gpx);
 } // }}}
 
 $time_end = microtime(true);

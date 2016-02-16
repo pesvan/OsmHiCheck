@@ -24,7 +24,7 @@ body {
     height: 216px;
     border-radius: 4px;
     border: 1px solid #000;
-    margin-left: 5px;
+    margin: 5px;
 }
 
 .image > div {
@@ -44,7 +44,7 @@ a:visited {
     color: inherit;
 }
 
-.image-left {
+.image-map {
     background-image: url('../images/screen.png');
 }
 
