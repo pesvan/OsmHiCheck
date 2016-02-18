@@ -93,13 +93,7 @@ if(isset($_GET['fetch'])){ //{{{
 } // }}}
 
 if(isset($_GET['analyse'])){ //{{{
-  //prepare GPX header
-  $gpx=fopen($gpx_file, 'w');
-  fwrite($gpx, '<?xml version="1.0" encoding="utf-8" standalone="yes"?>'."\n");
-  fwrite($gpx, '<gpx version="1.1" creator="Locus Android"'."\n");
-  fwrite($gpx, '  xmlns="http://www.topografix.com/GPX/1/1"'."\n");
-  fwrite($gpx, '  xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">'."\n");
-
+  
   $query="SELECT id, ref, ST_AsText(geom) AS geom FROM hicheck.guideposts";
   $res = pg_query($query);
   while ($data = pg_fetch_object($res)) {
@@ -128,6 +122,13 @@ if(isset($_GET['analyse'])){ //{{{
     $close[$data->n_id][] = $data;
   }
   pg_free_result($res);
+  
+  //prepare GPX header
+  $gpx=fopen($gpx_file, 'w');
+  fwrite($gpx, '<?xml version="1.0" encoding="utf-8" standalone="yes"?>'."\n");
+  fwrite($gpx, '<gpx version="1.1" creator="Locus Android"'."\n");
+  fwrite($gpx, '  xmlns="http://www.topografix.com/GPX/1/1"'."\n");
+  fwrite($gpx, '  xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">'."\n");
 
   echo "<p>Nodes with information=guidepost (".count($no).")</p>\n";
 
