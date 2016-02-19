@@ -5,6 +5,7 @@ $time_start = microtime(true);
 $gpx_file="/tmp/guideposts.gpx";
 
 $gpx_time=file_exists($gpx_file) ? '('.date('d.m.Y H:i', filemtime($gpx_file)).')' : '';
+$db_time='('.file_get_contents("../last_update.txt").')';
 
 //output prepared GPX if any
 if(isset($_GET['gpx'])){ //{{{
@@ -59,7 +60,7 @@ iframe#hiddenIframe {
 
 <ul>
 <li><a href="./?fetch">Fetch DB from api.osm.cz to osm.fit.vutbr.cz</a></li>
-<li><a href="./?analyse">Analyse current DB on osm.fit.vutbr.cz</a></li>
+<li><a href="./?analyse">Analyse current DB on osm.fit.vutbr.cz</a> $db_time</li>
 <li><a href="./?gpx">Download GPX with guideposts without correct photos</a> $gpx_time</li>
 </ul>
 
