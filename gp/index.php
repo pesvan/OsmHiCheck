@@ -4,7 +4,8 @@ $time_start = microtime(true);
 
 $gpx_file="/tmp/guideposts.gpx";
 
-$gpx_time=file_exists($gpx_file) ? '('.date('d.m.Y H:i', filemtime($gpx_file)).')' : '';
+$gpx_time=file_exists($gpx_file) ? '(data from '.date('d.m.Y H:i', filemtime($gpx_file)).')' : '';
+$db_time='(data from '.trim(file_get_contents("../last_update.txt")).')';
 
 //output prepared GPX if any
 if(isset($_GET['gpx'])){ //{{{
@@ -58,9 +59,9 @@ iframe#hiddenIframe {
 <p>Max node and img distance: $max_ok_distance m</p>
 
 <ul>
-<li><a href="./?fetch">Fetch DB from api.osm.cz to osm.fit.vutbr.cz</a></li>
-<li><a href="./?analyse">Analyse current DB on osm.fit.vutbr.cz</a></li>
-<li><a href="./?gpx">Download GPX with guideposts without correct photos</a> $gpx_time</li>
+<li><a href="./?fetch">Fetch</a> DB from api.osm.cz to osm.fit.vutbr.cz</li>
+<li><a href="./?analyse">Analyse</a> current DB on osm.fit.vutbr.cz $db_time</li>
+<li><a href="./?gpx">Download GPX</a> with guideposts without correct photos $gpx_time</li>
 </ul>
 
 EOF;
@@ -93,13 +94,7 @@ if(isset($_GET['fetch'])){ //{{{
 } // }}}
 
 if(isset($_GET['analyse'])){ //{{{
-  //prepare GPX header
-  $gpx=fopen($gpx_file, 'w');
-  fwrite($gpx, '<?xml version="1.0" encoding="utf-8" standalone="yes"?>'."\n");
-  fwrite($gpx, '<gpx version="1.1" creator="Locus Android"'."\n");
-  fwrite($gpx, '  xmlns="http://www.topografix.com/GPX/1/1"'."\n");
-  fwrite($gpx, '  xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">'."\n");
-
+  
   $query="SELECT id, ref, ST_AsText(geom) AS geom FROM hicheck.guideposts";
   $res = pg_query($query);
   while ($data = pg_fetch_object($res)) {
@@ -128,6 +123,13 @@ if(isset($_GET['analyse'])){ //{{{
     $close[$data->n_id][] = $data;
   }
   pg_free_result($res);
+  
+  //prepare GPX header
+  $gpx=fopen($gpx_file, 'w');
+  fwrite($gpx, '<?xml version="1.0" encoding="utf-8" standalone="yes"?>'."\n");
+  fwrite($gpx, '<gpx version="1.1" creator="Locus Android"'."\n");
+  fwrite($gpx, '  xmlns="http://www.topografix.com/GPX/1/1"'."\n");
+  fwrite($gpx, '  xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">'."\n");
 
   echo "<p>Nodes with information=guidepost (".count($no).")</p>\n";
 
