@@ -62,6 +62,7 @@ iframe#hiddenIframe {
 <li><a href="./?fetch">Fetch</a> DB from api.osm.cz to osm.fit.vutbr.cz</li>
 <li><a href="./?analyse">Analyse</a> current DB on osm.fit.vutbr.cz $db_time</li>
 <li><a href="./?gpx">Download GPX</a> with guideposts without correct photos $gpx_time</li>
+<li><a href="stats.php">Show guideposts statistics</li>
 </ul>
 
 EOF;
