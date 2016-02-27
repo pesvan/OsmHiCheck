@@ -40,7 +40,7 @@ $data = getStatsForGraphs();
 $data = prepareGraphs($data);
 $plot->SetDataValues($data);
 
-$plot->SetLegend(array("%: gp nodes total", "%: gp img total", "%: gp img used"));
+$plot->SetLegend(array("total nodes", "total photos", "used photos"));
 $plot->SetLegendPosition(0.0,0.0, 'image', 0.05,0.05);
 
 $plot->DrawGraph();
