@@ -37,7 +37,7 @@ function prepareGraphs($data){ //{{{
     return array_reverse($data);
 } //}}}
 
-$plot = new PHPlot(1200, 400);
+$plot = new PHPlot(1200, 500);
 
 $data = getStatsForGraphs();
 $data = prepareGraphs($data);
