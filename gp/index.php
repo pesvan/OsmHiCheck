@@ -134,22 +134,26 @@ if(isset($_GET['analyse'])){ //{{{
 
   echo "<p>Nodes with information=guidepost (".count($no).")</p>\n";
 
+  $gp_class['ok']=0;
+  $gp_class['cor']=0;
+  $gp_class['bad']=0;
+
   echo "<table>";
-  echo '<tr><th>node ID</th><th>node coord</th><th>node ref</th><th>images</th></tr>'."\n";
+  echo '<tr><th width="7%">node ID</th><th width="11%">node coord</th><th width="12%">node ref</th><th>images</th></tr>'."\n";
   foreach($no as $n){
 
     //check for row class - OK (have ref and img), BAD, CORRECT
     echo "<tr";
     if(!isset($n->ref)){
-      echo isset($close[$n->id]) ? ' class="cor"' : ' class="bad"'; 
+      if (isset($close[$n->id])){ $gp_class['cor']++; echo ' class="cor"'; } else { $gp_class['bad']++; echo ' class="bad"'; }
     } else {
-      echo isset($close[$n->id]) ? ' class="ok"' : '';
+      if (isset($close[$n->id])){ $gp_class['ok']++; echo ' class="ok"'; }
     }
     echo ">";
 
     //check if need to put to GPX
     $geom = preg_replace('/POINT\(([-0-9.]{1,8})[0-9]* ([-0-9.]{1,8})[0-9]*\)/', 'lat="$2" lon="$1"', $n->geom);
-    $name = isset($n->name) ? $n->name : 'n'.$n->id;
+    $name = isset($n->name) ? htmlspecialchars($n->name) : 'n'.$n->id;
     if(isset($close[$n->id])) {
       if (!isset($n->ref)){
         //gp with image but without REF
@@ -190,6 +194,13 @@ if(isset($_GET['analyse'])){ //{{{
   }
   echo "</table>";
 
+  echo "<p>Guideposts nodes (total:".count($no)
+                             .", OK: ".$gp_class['ok']
+                             .", have photo but no ref: ".$gp_class['cor']
+                             .", missing photo and ref: ".$gp_class['bad']
+                             .", have ref but no photo: ".(count($no) - $gp_class['ok'] - $gp_class['cor'] - $gp_class['bad'])
+                             .")</p>\n";
+  
   echo "<p>Guideposts photo entries (total:".count($gp).", used: ".count($gp_used).", unused: ".(count($gp)-count($gp_used)).")</p>\n";
 
   echo "<table>";
